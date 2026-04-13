@@ -5,10 +5,8 @@ LABEL maintainer="pgsql-ext-spring"
 WORKDIR /app
 
 COPY target/pgsql-ext-admin-*.jar app.jar
-COPY src/main/resources/json ./resources/json
-COPY src/main/resources/application*.yml ./resources/
 
-EXPOSE 8080
+EXPOSE 9019
 
 ENTRYPOINT ["java", \
   "--enable-preview", \
