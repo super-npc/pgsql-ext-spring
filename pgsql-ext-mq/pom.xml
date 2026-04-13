@@ -22,6 +22,12 @@
             <groupId>cc.bronya</groupId>
             <artifactId>bronya-starter-db</artifactId>
         </dependency>
+        <dependency>
+            <!-- https://github.com/roy20021/pgmq-jdbc-client mq客户端 -->
+            <groupId>org.andreaesposito</groupId>
+            <artifactId>pgmq-jdbc-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>

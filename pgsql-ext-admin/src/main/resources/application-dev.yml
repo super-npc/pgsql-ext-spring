@@ -10,6 +10,12 @@ auto-table:
     record-type: db
 
 spring:
+  data:
+    redis:
+      host: 139.199.207.29
+      port: 55119
+      password: ENC(Wz7mBbtCZgpc/qWLRC3PUlfrlzUBq3qBnIZ/RRa05F/5p05VQj9pv0HtmLQ0F4UO)
+      timeout: 3000
   datasource:
     dynamic:
       primary: my-pgsql

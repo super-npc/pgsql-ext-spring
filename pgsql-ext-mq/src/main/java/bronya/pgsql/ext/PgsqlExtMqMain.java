@@ -1,4 +1,4 @@
-package bronya.pgsql.ext.mq;
+package bronya.pgsql.ext;
 
 import bronya.admin.model.annotation.AmisScan;
 import org.mybatis.spring.annotation.MapperScan;
