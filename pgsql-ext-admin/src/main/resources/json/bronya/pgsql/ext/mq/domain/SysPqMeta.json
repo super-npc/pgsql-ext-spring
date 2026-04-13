@@ -1,0 +1,600 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "SysPqMeta"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "SysPqMeta"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions",
+        {
+          "actionType": "dialog",
+          "level": "info",
+          "label": "创建持久化队列",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/全局执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'创建持久化队列'?,选中:$SysPqMeta__queueName",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqMeta",
+                  "id": "$SysPqMeta__queueName"
+                },
+                "method": "POST",
+                "url": "/admin/pqmq/meta/create-queue"
+              },
+              "body":
+              [
+                {
+                  "label": "队列名称",
+                  "name": "SysPqMeta__queueName",
+                  "static": false,
+                  "type": "input-text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "actionType": "dialog",
+          "level": "info",
+          "label": "创建非持久化队列",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/全局执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'创建非持久化队列'?,选中:$SysPqMeta__queueName",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqMeta",
+                  "id": "$SysPqMeta__queueName"
+                },
+                "method": "POST",
+                "url": "/admin/pqmq/meta/create-unlogged-queue"
+              },
+              "body":
+              [
+                {
+                  "label": "队列名称",
+                  "name": "SysPqMeta__queueName",
+                  "static": false,
+                  "type": "input-text"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        },
+        {
+          "actionType": "dialog",
+          "level": "danger",
+          "label": "删除队列",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'删除队列'?,选中:$ids",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqMeta",
+                  "id": "$ids"
+                },
+                "method": "GET",
+                "url": "/admin/pqmq/meta/drop"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        },
+        {
+          "actionType": "dialog",
+          "level": "warning",
+          "label": "清空队列",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'清空队列'?,选中:$ids",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqMeta",
+                  "id": "$ids"
+                },
+                "method": "GET",
+                "url": "/admin/pqmq/meta/purge"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "actionType": "dialog",
+          "dialog":
+          {
+            "body":
+            {
+              "data":
+              {
+                "One2ManyReq.entityField": "pgmqArchive",
+                "One2ManyReq.entity": "SysPqMeta",
+                "One2ManyReq.entityFieldVal": "$SysPqMeta__queueName"
+              },
+              "schemaApi": "get:/json/bronya/pgsql/ext/mq/domain/SysPqArchive.json",
+              "type": "service"
+            },
+            "size": "xl",
+            "title": "一对多 [pg元数据 - 队列] = 「$SysPqMeta__queueName」"
+          },
+          "hiddenOnHover": true,
+          "icon": "/icon/btn/one-to-many.svg",
+          "label": "pg归档",
+          "type": "button"
+        },
+        {
+          "actionType": "dialog",
+          "dialog":
+          {
+            "body":
+            {
+              "data":
+              {
+                "One2ManyReq.entityField": "pgQueue",
+                "One2ManyReq.entity": "SysPqMeta",
+                "One2ManyReq.entityFieldVal": "$SysPqMeta__queueName"
+              },
+              "schemaApi": "get:/json/bronya/pgsql/ext/mq/domain/SysPqQueue.json",
+              "type": "service"
+            },
+            "size": "xl",
+            "title": "一对多 [pg元数据 - 队列] = 「$SysPqMeta__queueName」"
+          },
+          "hiddenOnHover": true,
+          "icon": "/icon/btn/one-to-many.svg",
+          "label": "pg队列",
+          "type": "button"
+        },
+        {
+          "actionType": "dialog",
+          "level": "danger",
+          "label": "删除队列",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'删除队列'?,选中:$SysPqMeta__queueName",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqMeta",
+                  "id": "$SysPqMeta__queueName"
+                },
+                "method": "GET",
+                "url": "/admin/pqmq/meta/drop"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        },
+        {
+          "actionType": "dialog",
+          "level": "warning",
+          "label": "清空队列",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'清空队列'?,选中:$SysPqMeta__queueName",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqMeta",
+                  "id": "$SysPqMeta__queueName"
+                },
+                "method": "GET",
+                "url": "/admin/pqmq/meta/purge"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        },
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$SysPqMeta__queueName」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$SysPqMeta__queueName"
+                },
+                "headers":
+                {
+                  "bean": "SysPqMeta"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "队列名称",
+                  "name": "SysPqMeta__queueName",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "分区",
+                  "name": "SysPqMeta__isPartitioned",
+                  "static": true,
+                  "type": "switch"
+                },
+                {
+                  "label": "类型",
+                  "name": "SysPqMeta__isUnlogged",
+                  "static": true,
+                  "type": "switch"
+                },
+                {
+                  "label": "创建",
+                  "name": "SysPqMeta__createdAt",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "队列名称",
+          "name": "SysPqMeta__queueName",
+          "searchable":
+          {
+            "label": "队列名称",
+            "mode": "horizontal",
+            "name": "SysPqMeta__queueName",
+            "placeholder": "请输入队列名称",
+            "type": "input-number"
+          },
+          "sort": -100,
+          "static": true,
+          "type": "static",
+          "width": "150px"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "分区",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "已分区",
+              "name": "true",
+              "type": "tag"
+            },
+            {
+              "color": "#FF0000",
+              "displayMode": "normal",
+              "label": "未分区",
+              "name": "false",
+              "type": "tag"
+            }
+          ],
+          "name": "SysPqMeta__isPartitioned",
+          "searchable":
+          {
+            "label": "分区",
+            "mode": "horizontal",
+            "name": "SysPqMeta__isPartitioned",
+            "options":
+            [
+              {
+                "label": "开启",
+                "value": "true"
+              },
+              {
+                "label": "关闭",
+                "value": "false"
+              }
+            ],
+            "placeholder": "请输入分区",
+            "type": "select"
+          },
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name",
+          "width": "150px"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "类型",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "非持久化",
+              "name": "true",
+              "type": "tag"
+            },
+            {
+              "color": "#FF0000",
+              "displayMode": "normal",
+              "label": "持久化",
+              "name": "false",
+              "type": "tag"
+            }
+          ],
+          "name": "SysPqMeta__isUnlogged",
+          "searchable":
+          {
+            "label": "类型",
+            "mode": "horizontal",
+            "name": "SysPqMeta__isUnlogged",
+            "options":
+            [
+              {
+                "label": "开启",
+                "value": "true"
+              },
+              {
+                "label": "关闭",
+                "value": "false"
+              }
+            ],
+            "placeholder": "请输入类型",
+            "type": "select"
+          },
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name",
+          "width": "150px"
+        },
+        {
+          "label": "创建",
+          "name": "SysPqMeta__createdAt",
+          "static": true,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "allowFullscreen": true,
+          "label": "统计",
+          "language": "markdown",
+          "name": "SysPqMeta__metrics",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "300px",
+          "className": "text-success",
+          "static": true
+        }
+      ]
+    }
+  ]
+}

@@ -14,7 +14,7 @@ server:
 sa:
   auth: true
   name: admin
-  pwd: Temp12138
+  pwd: admin
 
 arthas:
   agent-id: ${spring.application.name}

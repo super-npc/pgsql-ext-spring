@@ -1,0 +1,496 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "SysPqQueue"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "SysPqQueue"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "label": "队列",
+          "type": "button",
+          "icon": "/icon/btn/关联.svg",
+          "level": "enhance",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "pg队列.主键:「$SysPqQueue__msgId」 多对一关联 pg元数据",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/bind-many2-one-view",
+                "data":
+                {
+                  "id": "$SysPqQueue__msgId"
+                },
+                "headers":
+                {
+                  "bean": "SysPqQueue",
+                  "bind-many2-one-class-field": "pgQueue"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "队列名称",
+                  "name": "SysPqMeta__queueName",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "分区",
+                  "name": "SysPqMeta__isPartitioned",
+                  "static": true,
+                  "type": "switch"
+                },
+                {
+                  "label": "类型",
+                  "name": "SysPqMeta__isUnlogged",
+                  "static": true,
+                  "type": "switch"
+                },
+                {
+                  "label": "创建",
+                  "name": "SysPqMeta__createdAt",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$SysPqQueue__msgId」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$SysPqQueue__msgId"
+                },
+                "headers":
+                {
+                  "bean": "SysPqQueue"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "消息id",
+                  "name": "SysPqQueue__msgId",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "读数",
+                  "name": "SysPqQueue__readCt",
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "入队",
+                  "name": "SysPqQueue__enqueuedAt",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "最后读取",
+                  "name": "SysPqQueue__lastReadAt",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "可见时间",
+                  "name": "SysPqQueue__vt",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "消息主体",
+                  "name": "SysPqQueue__message",
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "元数据",
+                  "name": "SysPqQueue__headers",
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "队列",
+                  "name": "SysPqQueue__pgQueue",
+                  "required": true,
+                  "static": true,
+                  "type": "input-number"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "copyable": true,
+          "label": "消息id",
+          "name": "SysPqQueue__msgId",
+          "searchable":
+          {
+            "label": "消息id",
+            "mode": "horizontal",
+            "name": "SysPqQueue__msgId",
+            "placeholder": "请输入消息id",
+            "type": "input-number"
+          },
+          "sort": -100,
+          "sortable": true,
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "读数",
+          "name": "SysPqQueue__readCt",
+          "sortable": true,
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "入队",
+          "name": "SysPqQueue__enqueuedAt",
+          "static": true,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后读取",
+          "name": "SysPqQueue__lastReadAt",
+          "static": true,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "可见时间",
+          "name": "SysPqQueue__vt",
+          "static": true,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "type": "json",
+          "className": "",
+          "levelExpand": 1,
+          "label": "消息主体",
+          "source": "",
+          "placeholder": "请稍等..",
+          "mutable": false,
+          "jsonTheme": "twilight",
+          "name": "SysPqQueue__message",
+          "static": true
+        },
+        {
+          "type": "json",
+          "label": "元数据",
+          "className": "",
+          "levelExpand": 1,
+          "source": "",
+          "name": "SysPqQueue__headers",
+          "placeholder": "请稍等..",
+          "mutable": false,
+          "jsonTheme": "twilight",
+          "static": true
+        },
+        {
+          "label": "队列",
+          "name": "SysPqQueue__pgQueue",
+          "searchable":
+          {
+            "type": "picker",
+            "name": "SysPqQueue__pgQueue",
+            "joinValues": true,
+            "disabled": false,
+            "valueField": "msgId",
+            "labelField": "SysPqMeta__queueName",
+            "label": "队列",
+            "source":
+            {
+              "method": "post",
+              "url": "/admin/base/amis/page",
+              "data":
+              {
+                "&": "$$"
+              },
+              "headers":
+              {
+                "bean": "SysPqMeta"
+              }
+            },
+            "modalSize": "xl",
+            "size": "xl",
+            "embed": false,
+            "multiple": false,
+            "pickerSchema":
+            {
+              "type": "crud",
+              "syncLocation": false,
+              "autoGenerateFilter": true,
+              "defaultCollapsed": true,
+              "draggable": true,
+              "headerToolbar":
+              {
+                
+              },
+              "footerToolbar":
+              [
+                "statistics",
+                {
+                  "type": "pagination",
+                  "showPageInput": true,
+                  "layout": "perPage,pager,go"
+                }
+              ],
+              "columns":
+              [
+                {
+                  "label": "队列名称",
+                  "name": "SysPqMeta__queueName",
+                  "searchable":
+                  {
+                    "label": "队列名称",
+                    "mode": "horizontal",
+                    "name": "SysPqMeta__queueName",
+                    "placeholder": "请输入队列名称",
+                    "type": "input-number"
+                  },
+                  "sort": -100,
+                  "static": true,
+                  "type": "static",
+                  "width": "150px"
+                },
+                {
+                  "itemSchema":
+                  {
+                    "color": "${color}",
+                    "displayMode": "normal",
+                    "label": "${label}",
+                    "type": "tag"
+                  },
+                  "label": "分区",
+                  "labelField": "label",
+                  "map":
+                  [
+                    {
+                      "color": "#008000",
+                      "displayMode": "normal",
+                      "label": "已分区",
+                      "name": "true",
+                      "type": "tag"
+                    },
+                    {
+                      "color": "#FF0000",
+                      "displayMode": "normal",
+                      "label": "未分区",
+                      "name": "false",
+                      "type": "tag"
+                    }
+                  ],
+                  "name": "SysPqMeta__isPartitioned",
+                  "searchable":
+                  {
+                    "label": "分区",
+                    "mode": "horizontal",
+                    "name": "SysPqMeta__isPartitioned",
+                    "options":
+                    [
+                      {
+                        "label": "开启",
+                        "value": "true"
+                      },
+                      {
+                        "label": "关闭",
+                        "value": "false"
+                      }
+                    ],
+                    "placeholder": "请输入分区",
+                    "type": "select"
+                  },
+                  "static": true,
+                  "type": "static-mapping",
+                  "valueField": "name",
+                  "width": "150px"
+                },
+                {
+                  "itemSchema":
+                  {
+                    "color": "${color}",
+                    "displayMode": "normal",
+                    "label": "${label}",
+                    "type": "tag"
+                  },
+                  "label": "类型",
+                  "labelField": "label",
+                  "map":
+                  [
+                    {
+                      "color": "#008000",
+                      "displayMode": "normal",
+                      "label": "非持久化",
+                      "name": "true",
+                      "type": "tag"
+                    },
+                    {
+                      "color": "#FF0000",
+                      "displayMode": "normal",
+                      "label": "持久化",
+                      "name": "false",
+                      "type": "tag"
+                    }
+                  ],
+                  "name": "SysPqMeta__isUnlogged",
+                  "searchable":
+                  {
+                    "label": "类型",
+                    "mode": "horizontal",
+                    "name": "SysPqMeta__isUnlogged",
+                    "options":
+                    [
+                      {
+                        "label": "开启",
+                        "value": "true"
+                      },
+                      {
+                        "label": "关闭",
+                        "value": "false"
+                      }
+                    ],
+                    "placeholder": "请输入类型",
+                    "type": "select"
+                  },
+                  "static": true,
+                  "type": "static-mapping",
+                  "valueField": "name",
+                  "width": "150px"
+                },
+                {
+                  "label": "创建",
+                  "name": "SysPqMeta__createdAt",
+                  "static": true,
+                  "type": "static-datetime",
+                  "valueFormat": "x",
+                  "width": "153px"
+                }
+              ]
+            }
+          },
+          "static": true,
+          "type": "static",
+          "visibleOn": "1 != 1"
+        },
+        {
+          "label": "队列",
+          "name": "SysPqQueue__pgQueueDesc",
+          "sort": 99,
+          "static": true,
+          "type": "static",
+          "className": "text-info"
+        }
+      ]
+    }
+  ]
+}

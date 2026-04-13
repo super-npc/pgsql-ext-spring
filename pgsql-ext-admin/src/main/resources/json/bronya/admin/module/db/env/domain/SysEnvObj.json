@@ -1,0 +1,180 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": false,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "SysEnvObj"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "SysEnvObj"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "actionType": "dialog",
+          "dialog":
+          {
+            "body":
+            {
+              "data":
+              {
+                "One2ManyReq.entityField": "envObjId",
+                "One2ManyReq.entity": "SysEnvObj",
+                "One2ManyReq.entityFieldVal": "$SysEnvObj__id"
+              },
+              "schemaApi": "get:/json/bronya/admin/module/db/env/domain/SysEnvObjField.json",
+              "type": "service"
+            },
+            "size": "xl",
+            "title": "一对多 [变量对象 - 对象] = 「$SysEnvObj__id」"
+          },
+          "hiddenOnHover": true,
+          "icon": "/icon/btn/one-to-many.svg",
+          "label": "变量属性",
+          "type": "button"
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "SysEnvObj__id",
+          "sort": -100,
+          "static": true,
+          "toggled": false,
+          "type": "static"
+        },
+        {
+          "label": "对象名",
+          "name": "SysEnvObj__objName",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "描述",
+          "name": "SysEnvObj__description",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "minRows": 3,
+          "type": "textarea",
+          "maxRows": 20,
+          "showCounter": true,
+          "clearable": true,
+          "resetValue": "",
+          "trimContents": true,
+          "name": "SysEnvObj__remark",
+          "maxLength": 999,
+          "toggled": false,
+          "readOnly": false,
+          "label": "备注信息",
+          "static": true
+        },
+        {
+          "className": "text-success",
+          "jsonTheme": "twilight",
+          "label": "环境变量",
+          "levelExpand": 2,
+          "mutable": false,
+          "name": "SysEnvObj__env",
+          "placeholder": "未配置环境变量",
+          "source": "",
+          "type": "json",
+          "static": true
+        },
+        {
+          "label": "创建时间",
+          "name": "SysEnvObj__createTime",
+          "sort": 102,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后更新时间",
+          "name": "SysEnvObj__updateTime",
+          "sort": 103,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        }
+      ]
+    }
+  ]
+}

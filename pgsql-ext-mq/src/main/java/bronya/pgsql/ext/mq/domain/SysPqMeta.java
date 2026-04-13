@@ -54,7 +54,7 @@ public class SysPqMeta {
     private Boolean isPartitioned;
 
     @Column(comment = "类型")
-    @AmisField(switchBool = @AmisSwitch.Switch(onText = "持久化", offText = "非持久化"), search = @AmisField.Search(operator = SqlOperator.EQUALS), width = 150)
+    @AmisField(switchBool = @AmisSwitch.Switch(onText = "非持久化", offText = "持久化"), search = @AmisField.Search(operator = SqlOperator.EQUALS), width = 150)
     private Boolean isUnlogged;
 
     @Column(comment = "创建")

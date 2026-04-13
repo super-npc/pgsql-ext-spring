@@ -1,0 +1,654 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": false,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "SysApiLimit"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "SysApiLimit"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "type": "button",
+          "label": "修改",
+          "icon": "/icon/btn/修改.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "修改数据「$SysApiLimit__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$SysApiLimit__id"
+                },
+                "headers":
+                {
+                  "bean": "SysApiLimit"
+                }
+              },
+              "api":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/update",
+                "headers":
+                {
+                  "bean": "SysApiLimit"
+                }
+              },
+              "body":
+              [
+                {
+                  "type": "hidden",
+                  "required": false,
+                  "name": "SysApiLimit__id",
+                  "label": "id主键",
+                  "staticX": false
+                },
+                {
+                  "value": true,
+                  "option": "",
+                  "onText": "开启",
+                  "offText": "关闭",
+                  "trueValue": true,
+                  "falseValue": false,
+                  "size": "md",
+                  "required": true,
+                  "type": "switch",
+                  "name": "SysApiLimit__enable",
+                  "label": "启用"
+                },
+                {
+                  "value": false,
+                  "option": "",
+                  "onText": "框架",
+                  "offText": "项目",
+                  "trueValue": true,
+                  "falseValue": false,
+                  "size": "md",
+                  "required": true,
+                  "type": "switch",
+                  "name": "SysApiLimit__frameworkApi",
+                  "label": "框架接口"
+                },
+                {
+                  "value": false,
+                  "option": "",
+                  "onText": "feign",
+                  "offText": "普通",
+                  "trueValue": true,
+                  "falseValue": false,
+                  "size": "md",
+                  "required": true,
+                  "type": "switch",
+                  "name": "SysApiLimit__feign",
+                  "label": "feign接口"
+                },
+                {
+                  "type": "input-text",
+                  "required": true,
+                  "name": "SysApiLimit__urlPath",
+                  "label": "URL路径",
+                  "staticX": false
+                },
+                {
+                  "type": "input-text",
+                  "name": "SysApiLimit__description",
+                  "label": "描述",
+                  "staticX": false
+                },
+                {
+                  "type": "textarea",
+                  "name": "SysApiLimit__remark",
+                  "label": "备注信息",
+                  "staticX": false
+                },
+                {
+                  "body":
+                  [
+                    {
+                      "type": "input-text",
+                      "required": true,
+                      "name": "SysApiLimit__beanName",
+                      "label": "bean名称",
+                      "staticX": false
+                    },
+                    {
+                      "type": "input-text",
+                      "required": true,
+                      "name": "SysApiLimit__methodName",
+                      "label": "函数名",
+                      "staticX": false
+                    }
+                  ],
+                  "className": "",
+                  "collapsable": true,
+                  "collapseTitle": "限流key",
+                  "collapsed": false,
+                  "headingClassName": "",
+                  "mode": "",
+                  "size": "base",
+                  "title": "限流key",
+                  "type": "fieldSet"
+                },
+                {
+                  "title": "限流key",
+                  "type": "divider"
+                },
+                {
+                  "body":
+                  [
+                    {
+                      "type": "button-group-select",
+                      "required": true,
+                      "name": "SysApiLimit__limitType",
+                      "label": "类型",
+                      "value": "NONE",
+                      "staticX": false,
+                      "options":
+                      [
+                        {
+                          "label": "无",
+                          "value": "NONE"
+                        },
+                        {
+                          "label": "IP",
+                          "value": "IP"
+                        },
+                        {
+                          "label": "自定义",
+                          "value": "CUSTOM"
+                        }
+                      ]
+                    },
+                    {
+                      "min": -99999.99999,
+                      "max": 1.0E25,
+                      "step": 0,
+                      "precision": 0,
+                      "showSteps": true,
+                      "readOnly": false,
+                      "prefix": "",
+                      "suffix": "",
+                      "unitOptions":
+                      [
+                        
+                      ],
+                      "kilobitSeparator": false,
+                      "keyboard": true,
+                      "big": false,
+                      "displayMode": "base",
+                      "borderMode": "full",
+                      "clearValueOnEmpty": false,
+                      "value": 0,
+                      "required": true,
+                      "type": "input-number",
+                      "name": "SysApiLimit__duration",
+                      "label": "窗口秒数"
+                    },
+                    {
+                      "min": -99999.99999,
+                      "max": 1.0E25,
+                      "step": 0,
+                      "precision": 0,
+                      "showSteps": true,
+                      "readOnly": false,
+                      "prefix": "",
+                      "suffix": "",
+                      "unitOptions":
+                      [
+                        
+                      ],
+                      "kilobitSeparator": false,
+                      "keyboard": true,
+                      "big": false,
+                      "displayMode": "base",
+                      "borderMode": "full",
+                      "clearValueOnEmpty": false,
+                      "value": 0,
+                      "required": true,
+                      "type": "input-number",
+                      "name": "SysApiLimit__rate",
+                      "label": "令牌量"
+                    }
+                  ],
+                  "className": "",
+                  "collapsable": true,
+                  "collapseTitle": "配置",
+                  "collapsed": false,
+                  "headingClassName": "",
+                  "mode": "",
+                  "size": "base",
+                  "title": "配置",
+                  "type": "fieldSet"
+                },
+                {
+                  "title": "配置",
+                  "type": "divider"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "SysApiLimit__id",
+          "sort": -100,
+          "static": true,
+          "toggled": false,
+          "type": "static"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "启用",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "开启",
+              "name": "true",
+              "type": "tag"
+            },
+            {
+              "color": "#FF0000",
+              "displayMode": "normal",
+              "label": "关闭",
+              "name": "false",
+              "type": "tag"
+            }
+          ],
+          "name": "SysApiLimit__enable",
+          "searchable":
+          {
+            "label": "启用",
+            "mode": "horizontal",
+            "name": "SysApiLimit__enable",
+            "options":
+            [
+              {
+                "label": "开启",
+                "value": "true"
+              },
+              {
+                "label": "关闭",
+                "value": "false"
+              }
+            ],
+            "placeholder": "请输入启用",
+            "type": "select"
+          },
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "类型",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#D3D3D3",
+              "displayMode": "normal",
+              "label": "无",
+              "name": "NONE",
+              "type": "tag"
+            },
+            {
+              "color": "#DEB887",
+              "displayMode": "normal",
+              "label": "IP",
+              "name": "IP",
+              "type": "tag"
+            },
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "自定义",
+              "name": "CUSTOM",
+              "type": "tag"
+            }
+          ],
+          "name": "SysApiLimit__limitType",
+          "searchable":
+          {
+            "label": "类型",
+            "mode": "horizontal",
+            "name": "SysApiLimit__limitType",
+            "options":
+            [
+              {
+                "label": "无",
+                "value": "NONE"
+              },
+              {
+                "label": "IP",
+                "value": "IP"
+              },
+              {
+                "label": "自定义",
+                "value": "CUSTOM"
+              }
+            ],
+            "placeholder": "请输入类型",
+            "type": "select"
+          },
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name"
+        },
+        {
+          "label": "bean名称",
+          "name": "SysApiLimit__beanName",
+          "searchable":
+          {
+            "label": "bean名称",
+            "mode": "horizontal",
+            "name": "SysApiLimit__beanName",
+            "placeholder": "请输入bean名称",
+            "type": "input-text"
+          },
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "函数名",
+          "name": "SysApiLimit__methodName",
+          "searchable":
+          {
+            "label": "函数名",
+            "mode": "horizontal",
+            "name": "SysApiLimit__methodName",
+            "placeholder": "请输入函数名",
+            "type": "input-text"
+          },
+          "static": true,
+          "type": "static"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "框架接口",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "框架",
+              "name": "true",
+              "type": "tag"
+            },
+            {
+              "color": "#FF0000",
+              "displayMode": "normal",
+              "label": "项目",
+              "name": "false",
+              "type": "tag"
+            }
+          ],
+          "name": "SysApiLimit__frameworkApi",
+          "searchable":
+          {
+            "label": "框架接口",
+            "mode": "horizontal",
+            "name": "SysApiLimit__frameworkApi",
+            "options":
+            [
+              {
+                "label": "开启",
+                "value": "true"
+              },
+              {
+                "label": "关闭",
+                "value": "false"
+              }
+            ],
+            "placeholder": "请输入框架接口",
+            "type": "select"
+          },
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "feign接口",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "feign",
+              "name": "true",
+              "type": "tag"
+            },
+            {
+              "color": "#FF0000",
+              "displayMode": "normal",
+              "label": "普通",
+              "name": "false",
+              "type": "tag"
+            }
+          ],
+          "name": "SysApiLimit__feign",
+          "searchable":
+          {
+            "label": "feign接口",
+            "mode": "horizontal",
+            "name": "SysApiLimit__feign",
+            "options":
+            [
+              {
+                "label": "开启",
+                "value": "true"
+              },
+              {
+                "label": "关闭",
+                "value": "false"
+              }
+            ],
+            "placeholder": "请输入feign接口",
+            "type": "select"
+          },
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name"
+        },
+        {
+          "label": "URL路径",
+          "name": "SysApiLimit__urlPath",
+          "searchable":
+          {
+            "label": "URL路径",
+            "mode": "horizontal",
+            "name": "SysApiLimit__urlPath",
+            "placeholder": "请输入URL路径",
+            "type": "input-text"
+          },
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "窗口秒数",
+          "name": "SysApiLimit__duration",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "令牌量",
+          "name": "SysApiLimit__rate",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "描述",
+          "name": "SysApiLimit__description",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "minRows": 3,
+          "type": "textarea",
+          "maxRows": 20,
+          "showCounter": true,
+          "clearable": true,
+          "resetValue": "",
+          "trimContents": true,
+          "name": "SysApiLimit__remark",
+          "maxLength": 999,
+          "toggled": false,
+          "readOnly": false,
+          "label": "备注信息",
+          "static": true
+        },
+        {
+          "allowFullscreen": true,
+          "label": "运行信息",
+          "language": "markdown",
+          "name": "SysApiLimit__running",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "400px",
+          "className": "text-success",
+          "static": true
+        },
+        {
+          "label": "创建时间",
+          "name": "SysApiLimit__createTime",
+          "sort": 102,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后更新时间",
+          "name": "SysApiLimit__updateTime",
+          "sort": 103,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        }
+      ]
+    }
+  ]
+}

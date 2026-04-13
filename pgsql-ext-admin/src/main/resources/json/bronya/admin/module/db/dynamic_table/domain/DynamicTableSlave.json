@@ -1,0 +1,406 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "DynamicTableSlave"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "DynamicTableSlave"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "label": "对象",
+          "type": "button",
+          "icon": "/icon/btn/关联.svg",
+          "level": "enhance",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "分表.主键:「$DynamicTableSlave__id」 多对一关联 主表",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/bind-many2-one-view",
+                "data":
+                {
+                  "id": "$DynamicTableSlave__id"
+                },
+                "headers":
+                {
+                  "bean": "DynamicTableSlave",
+                  "bind-many2-one-class-field": "dynamicTableMasterId"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "DynamicTableMaster__id",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "主表名称",
+                  "name": "DynamicTableMaster__tableMaster",
+                  "required": true,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "备注信息",
+                  "name": "DynamicTableMaster__remark",
+                  "static": true,
+                  "type": "textarea"
+                },
+                {
+                  "label": "创建时间",
+                  "name": "DynamicTableMaster__createTime",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "最后更新时间",
+                  "name": "DynamicTableMaster__updateTime",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$DynamicTableSlave__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$DynamicTableSlave__id"
+                },
+                "headers":
+                {
+                  "bean": "DynamicTableSlave"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "DynamicTableSlave__id",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "对象",
+                  "name": "DynamicTableSlave__dynamicTableMasterId",
+                  "required": true,
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "分表名称",
+                  "name": "DynamicTableSlave__tableSlave",
+                  "required": true,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "备注信息",
+                  "name": "DynamicTableSlave__remark",
+                  "static": true,
+                  "type": "textarea"
+                },
+                {
+                  "label": "创建时间",
+                  "name": "DynamicTableSlave__createTime",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "最后更新时间",
+                  "name": "DynamicTableSlave__updateTime",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "DynamicTableSlave__id",
+          "sort": -100,
+          "static": true,
+          "toggled": false,
+          "type": "static"
+        },
+        {
+          "label": "对象",
+          "name": "DynamicTableSlave__dynamicTableMasterId",
+          "searchable":
+          {
+            "type": "picker",
+            "name": "DynamicTableSlave__dynamicTableMasterId",
+            "joinValues": true,
+            "disabled": false,
+            "valueField": "id",
+            "labelField": "DynamicTableMaster__tableMaster",
+            "label": "对象",
+            "source":
+            {
+              "method": "post",
+              "url": "/admin/base/amis/page",
+              "data":
+              {
+                "&": "$$"
+              },
+              "headers":
+              {
+                "bean": "DynamicTableMaster"
+              }
+            },
+            "modalSize": "xl",
+            "size": "xl",
+            "embed": false,
+            "multiple": false,
+            "pickerSchema":
+            {
+              "type": "crud",
+              "syncLocation": false,
+              "autoGenerateFilter": true,
+              "defaultCollapsed": true,
+              "draggable": true,
+              "headerToolbar":
+              {
+                
+              },
+              "footerToolbar":
+              [
+                "statistics",
+                {
+                  "type": "pagination",
+                  "showPageInput": true,
+                  "layout": "perPage,pager,go"
+                }
+              ],
+              "columns":
+              [
+                {
+                  "label": "id主键",
+                  "name": "DynamicTableMaster__id",
+                  "sort": -100,
+                  "static": true,
+                  "toggled": false,
+                  "type": "static"
+                },
+                {
+                  "label": "主表名称",
+                  "name": "DynamicTableMaster__tableMaster",
+                  "static": true,
+                  "type": "static"
+                },
+                {
+                  "clearable": true,
+                  "label": "备注信息",
+                  "maxLength": 999,
+                  "maxRows": 20,
+                  "minRows": 3,
+                  "name": "DynamicTableMaster__remark",
+                  "readOnly": false,
+                  "resetValue": "",
+                  "showCounter": true,
+                  "toggled": false,
+                  "trimContents": true,
+                  "type": "textarea"
+                },
+                {
+                  "label": "创建时间",
+                  "name": "DynamicTableMaster__createTime",
+                  "sort": 102,
+                  "static": true,
+                  "toggled": false,
+                  "type": "static-datetime",
+                  "valueFormat": "x",
+                  "width": "153px"
+                },
+                {
+                  "label": "最后更新时间",
+                  "name": "DynamicTableMaster__updateTime",
+                  "sort": 103,
+                  "static": true,
+                  "toggled": false,
+                  "type": "static-datetime",
+                  "valueFormat": "x",
+                  "width": "153px"
+                }
+              ]
+            }
+          },
+          "static": true,
+          "type": "static",
+          "visibleOn": "1 != 1"
+        },
+        {
+          "label": "分表名称",
+          "name": "DynamicTableSlave__tableSlave",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "minRows": 3,
+          "type": "textarea",
+          "maxRows": 20,
+          "showCounter": true,
+          "clearable": true,
+          "resetValue": "",
+          "trimContents": true,
+          "maxLength": 999,
+          "toggled": false,
+          "name": "DynamicTableSlave__remark",
+          "readOnly": false,
+          "label": "备注信息",
+          "static": true
+        },
+        {
+          "allowFullscreen": true,
+          "label": "差异sql",
+          "language": "markdown",
+          "name": "DynamicTableSlave__running",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "400px",
+          "className": "text-success",
+          "static": true
+        },
+        {
+          "label": "对象",
+          "name": "DynamicTableSlave__dynamicTableMasterIdDesc",
+          "sort": 99,
+          "static": true,
+          "type": "static",
+          "className": "text-info"
+        },
+        {
+          "label": "创建时间",
+          "name": "DynamicTableSlave__createTime",
+          "sort": 102,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后更新时间",
+          "name": "DynamicTableSlave__updateTime",
+          "sort": 103,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        }
+      ]
+    }
+  ]
+}

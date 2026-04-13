@@ -1,0 +1,243 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "SysDistributedLock"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "SysDistributedLock"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        },
+        {
+          "label": "批量删除",
+          "actionType": "ajax",
+          "level": "danger",
+          "api":
+          {
+            "method": "post",
+            "url": "/admin/base/amis/delete-batch",
+            "data":
+            {
+              "ids": "$ids"
+            },
+            "headers":
+            {
+              "bean": "SysDistributedLock"
+            }
+          },
+          "confirmText": "确认批量删除? ids:「$ids」"
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$SysDistributedLock__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$SysDistributedLock__id"
+                },
+                "headers":
+                {
+                  "bean": "SysDistributedLock"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "SysDistributedLock__id",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "名称",
+                  "name": "SysDistributedLock__lockKey",
+                  "required": true,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "备注信息",
+                  "name": "SysDistributedLock__remark",
+                  "static": true,
+                  "type": "textarea"
+                },
+                {
+                  "label": "创建时间",
+                  "name": "SysDistributedLock__createTime",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "最后更新时间",
+                  "name": "SysDistributedLock__updateTime",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "label": "删除",
+          "type": "button",
+          "icon": "/icon/btn/删除.svg",
+          "hiddenOnHover": true,
+          "actionType": "ajax",
+          "level": "danger",
+          "confirmText": "确认要删除? id:「$SysDistributedLock__id」",
+          "api":
+          {
+            "method": "post",
+            "url": "/admin/base/amis/delete-batch",
+            "data":
+            {
+              "ids": "$SysDistributedLock__id"
+            },
+            "headers":
+            {
+              "bean": "SysDistributedLock"
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "SysDistributedLock__id",
+          "sort": -100,
+          "static": false,
+          "type": "static"
+        },
+        {
+          "label": "名称",
+          "name": "SysDistributedLock__lockKey",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "minRows": 3,
+          "type": "textarea",
+          "maxRows": 20,
+          "showCounter": true,
+          "clearable": true,
+          "resetValue": "",
+          "trimContents": true,
+          "maxLength": 999,
+          "name": "SysDistributedLock__remark",
+          "toggled": false,
+          "readOnly": false,
+          "label": "备注信息",
+          "static": true
+        },
+        {
+          "label": "创建时间",
+          "name": "SysDistributedLock__createTime",
+          "sort": 102,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后更新时间",
+          "name": "SysDistributedLock__updateTime",
+          "sort": 103,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        }
+      ]
+    }
+  ]
+}

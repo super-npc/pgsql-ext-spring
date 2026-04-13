@@ -1,0 +1,344 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "DynamicTableMaster"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "DynamicTableMaster"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        },
+        {
+          "actionType": "dialog",
+          "level": "info",
+          "label": "扫描分表",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'扫描分表'?,选中:$ids",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "DynamicTableMaster",
+                  "id": "$ids"
+                },
+                "method": "GET",
+                "url": "/admin/dynamic-table-master/scan-slave"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "actionType": "dialog",
+          "dialog":
+          {
+            "body":
+            {
+              "data":
+              {
+                "One2ManyReq.entityField": "dynamicTableMasterId",
+                "One2ManyReq.entity": "DynamicTableMaster",
+                "One2ManyReq.entityFieldVal": "$DynamicTableMaster__id"
+              },
+              "schemaApi": "get:/json/bronya/admin/module/db/dynamic_table/domain/DynamicTableSlave.json",
+              "type": "service"
+            },
+            "size": "xl",
+            "title": "一对多 [主表 - 对象] = 「$DynamicTableMaster__id」"
+          },
+          "hiddenOnHover": true,
+          "icon": "/icon/btn/one-to-many.svg",
+          "label": "分表",
+          "type": "button"
+        },
+        {
+          "actionType": "dialog",
+          "level": "info",
+          "label": "扫描分表",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'扫描分表'?,选中:$DynamicTableMaster__id",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "DynamicTableMaster",
+                  "id": "$DynamicTableMaster__id"
+                },
+                "method": "GET",
+                "url": "/admin/dynamic-table-master/scan-slave"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        },
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$DynamicTableMaster__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$DynamicTableMaster__id"
+                },
+                "headers":
+                {
+                  "bean": "DynamicTableMaster"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "DynamicTableMaster__id",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "主表名称",
+                  "name": "DynamicTableMaster__tableMaster",
+                  "required": true,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "备注信息",
+                  "name": "DynamicTableMaster__remark",
+                  "static": true,
+                  "type": "textarea"
+                },
+                {
+                  "label": "创建时间",
+                  "name": "DynamicTableMaster__createTime",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "最后更新时间",
+                  "name": "DynamicTableMaster__updateTime",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "DynamicTableMaster__id",
+          "sort": -100,
+          "static": true,
+          "toggled": false,
+          "type": "static"
+        },
+        {
+          "label": "主表名称",
+          "name": "DynamicTableMaster__tableMaster",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "minRows": 3,
+          "type": "textarea",
+          "maxRows": 20,
+          "showCounter": true,
+          "clearable": true,
+          "resetValue": "",
+          "trimContents": true,
+          "name": "DynamicTableMaster__remark",
+          "maxLength": 999,
+          "toggled": false,
+          "readOnly": false,
+          "label": "备注信息",
+          "static": true
+        },
+        {
+          "allowFullscreen": true,
+          "label": "分表信息",
+          "language": "markdown",
+          "name": "DynamicTableMaster__running",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "400px",
+          "className": "text-success",
+          "static": true
+        },
+        {
+          "allowFullscreen": true,
+          "label": "ddl",
+          "language": "markdown",
+          "name": "DynamicTableMaster__ddl",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "400px",
+          "className": "text-success",
+          "static": true
+        },
+        {
+          "label": "创建时间",
+          "name": "DynamicTableMaster__createTime",
+          "sort": 102,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后更新时间",
+          "name": "DynamicTableMaster__updateTime",
+          "sort": 103,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        }
+      ]
+    }
+  ]
+}

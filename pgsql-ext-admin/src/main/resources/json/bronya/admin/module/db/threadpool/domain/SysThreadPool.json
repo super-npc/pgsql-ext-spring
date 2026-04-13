@@ -1,0 +1,511 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "SysThreadPool"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "SysThreadPool"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$SysThreadPool__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$SysThreadPool__id"
+                },
+                "headers":
+                {
+                  "bean": "SysThreadPool"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "SysThreadPool__id",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "线程前缀",
+                  "name": "SysThreadPool__prefixName",
+                  "required": true,
+                  "static": true,
+                  "type": "hidden"
+                },
+                {
+                  "label": "核心线程",
+                  "name": "SysThreadPool__corePoolSize",
+                  "required": true,
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "最大线程",
+                  "name": "SysThreadPool__maximumPoolSize",
+                  "required": true,
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "任务超时",
+                  "name": "SysThreadPool__taskTimeout",
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "拒绝策略",
+                  "name": "SysThreadPool__rejectedStrategy",
+                  "options":
+                  [
+                    {
+                      "label": "中止策略",
+                      "value": "AbortPolicy"
+                    },
+                    {
+                      "label": "丢弃策略",
+                      "value": "DiscardPolicy"
+                    },
+                    {
+                      "label": "丢弃最旧任务",
+                      "value": "DiscardOldestPolicy"
+                    },
+                    {
+                      "label": "调用者运行策略",
+                      "value": "CallerRunsPolicy"
+                    }
+                  ],
+                  "required": true,
+                  "static": true,
+                  "type": "button-group-select"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "button",
+          "label": "修改",
+          "icon": "/icon/btn/修改.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "修改数据「$SysThreadPool__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$SysThreadPool__id"
+                },
+                "headers":
+                {
+                  "bean": "SysThreadPool"
+                }
+              },
+              "api":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/update",
+                "headers":
+                {
+                  "bean": "SysThreadPool"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "SysThreadPool__id",
+                  "required": false,
+                  "static": false,
+                  "type": "hidden"
+                },
+                {
+                  "big": false,
+                  "borderMode": "full",
+                  "clearValueOnEmpty": false,
+                  "displayMode": "base",
+                  "keyboard": true,
+                  "kilobitSeparator": false,
+                  "label": "核心线程",
+                  "max": 1.0E25,
+                  "min": -99999.99999,
+                  "name": "SysThreadPool__corePoolSize",
+                  "precision": 0,
+                  "prefix": "",
+                  "readOnly": false,
+                  "remark": "线程池核心线程数量，核心线程不会被回收，即使没有任务执行，也会保持空闲状态。",
+                  "required": true,
+                  "showSteps": true,
+                  "step": 0,
+                  "suffix": "",
+                  "type": "input-number",
+                  "unitOptions":
+                  [
+                    
+                  ]
+                },
+                {
+                  "big": false,
+                  "borderMode": "full",
+                  "clearValueOnEmpty": false,
+                  "displayMode": "base",
+                  "keyboard": true,
+                  "kilobitSeparator": false,
+                  "label": "最大线程",
+                  "max": 1.0E25,
+                  "min": -99999.99999,
+                  "name": "SysThreadPool__maximumPoolSize",
+                  "precision": 0,
+                  "prefix": "",
+                  "readOnly": false,
+                  "remark": "池允许最大的线程数，当线程数量达到corePoolSize，且workQueue队列塞满任务了之后，继续创建线程。",
+                  "required": true,
+                  "showSteps": true,
+                  "step": 0,
+                  "suffix": "",
+                  "type": "input-number",
+                  "unitOptions":
+                  [
+                    
+                  ]
+                },
+                {
+                  "big": false,
+                  "borderMode": "full",
+                  "clearValueOnEmpty": false,
+                  "displayMode": "base",
+                  "keyboard": true,
+                  "kilobitSeparator": false,
+                  "label": "任务超时",
+                  "max": 1.0E25,
+                  "min": -99999.99999,
+                  "name": "SysThreadPool__taskTimeout",
+                  "precision": 0,
+                  "prefix": "",
+                  "readOnly": false,
+                  "remark": "任务执行超时时间（秒），超过此时间任务将被中断。0表示不超时。",
+                  "showSteps": true,
+                  "step": 0,
+                  "suffix": "",
+                  "type": "input-number",
+                  "unitOptions":
+                  [
+                    
+                  ],
+                  "value": 0
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "SysThreadPool__id",
+          "sort": -100,
+          "static": false,
+          "type": "static"
+        },
+        {
+          "label": "线程前缀",
+          "name": "SysThreadPool__prefixName",
+          "searchable":
+          {
+            "label": "线程前缀",
+            "mode": "horizontal",
+            "name": "SysThreadPool__prefixName",
+            "placeholder": "请输入线程前缀",
+            "type": "input-text"
+          },
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "核心线程",
+          "name": "SysThreadPool__corePoolSize",
+          "remark": "线程池核心线程数量，核心线程不会被回收，即使没有任务执行，也会保持空闲状态。",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "最大线程",
+          "name": "SysThreadPool__maximumPoolSize",
+          "remark": "池允许最大的线程数，当线程数量达到corePoolSize，且workQueue队列塞满任务了之后，继续创建线程。",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "label": "任务超时",
+          "name": "SysThreadPool__taskTimeout",
+          "remark": "任务执行超时时间（秒），超过此时间任务将被中断。0表示不超时。",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "拒绝策略",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#483D8B",
+              "displayMode": "normal",
+              "label": "中止策略",
+              "name": "AbortPolicy",
+              "type": "tag"
+            },
+            {
+              "color": "#8B0000",
+              "displayMode": "normal",
+              "label": "丢弃策略",
+              "name": "DiscardPolicy",
+              "type": "tag"
+            },
+            {
+              "color": "#F4A460",
+              "displayMode": "normal",
+              "label": "丢弃最旧任务",
+              "name": "DiscardOldestPolicy",
+              "type": "tag"
+            },
+            {
+              "color": "#228B22",
+              "displayMode": "normal",
+              "label": "调用者运行策略",
+              "name": "CallerRunsPolicy",
+              "type": "tag"
+            }
+          ],
+          "name": "SysThreadPool__rejectedStrategy",
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "状态",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#5F9EA0",
+              "displayMode": "normal",
+              "label": "生效",
+              "name": "ENABLE",
+              "type": "tag"
+            },
+            {
+              "color": "#8B008B",
+              "displayMode": "normal",
+              "label": "失效",
+              "name": "DISABLE",
+              "type": "tag"
+            }
+          ],
+          "name": "SysThreadPool__status",
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name",
+          "className": "text-success"
+        },
+        {
+          "itemSchema":
+          {
+            "color": "${color}",
+            "displayMode": "normal",
+            "label": "${label}",
+            "type": "tag"
+          },
+          "label": "流程",
+          "labelField": "label",
+          "map":
+          [
+            {
+              "color": "#7B68EE",
+              "displayMode": "normal",
+              "label": "已创建",
+              "name": "CREATED",
+              "type": "tag"
+            },
+            {
+              "color": "#FFA500",
+              "displayMode": "normal",
+              "label": "等待中",
+              "name": "PENDING",
+              "type": "tag"
+            },
+            {
+              "color": "#87CEEB",
+              "displayMode": "normal",
+              "label": "运行中",
+              "name": "RUNNING",
+              "type": "tag"
+            },
+            {
+              "color": "#9932CC",
+              "displayMode": "normal",
+              "label": "已暂停",
+              "name": "PAUSED",
+              "type": "tag"
+            },
+            {
+              "color": "#008000",
+              "displayMode": "normal",
+              "label": "完成",
+              "name": "SUCCESS",
+              "type": "tag"
+            },
+            {
+              "color": "#8B0000",
+              "displayMode": "normal",
+              "label": "失败",
+              "name": "FAIL",
+              "type": "tag"
+            },
+            {
+              "color": "#FF4500",
+              "displayMode": "normal",
+              "label": "已取消",
+              "name": "CANCELED",
+              "type": "tag"
+            }
+          ],
+          "name": "SysThreadPool__process",
+          "static": true,
+          "type": "static-mapping",
+          "valueField": "name",
+          "className": "text-success"
+        },
+        {
+          "allowFullscreen": true,
+          "label": "运行信息",
+          "language": "markdown",
+          "name": "SysThreadPool__running",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "300px",
+          "className": "text-success",
+          "static": true
+        }
+      ]
+    }
+  ]
+}

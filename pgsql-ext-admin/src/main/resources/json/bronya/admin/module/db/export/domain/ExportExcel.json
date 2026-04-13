@@ -1,0 +1,442 @@
+{
+  "type": "page",
+  "body":
+  [
+    {
+      "type": "crud",
+      "syncLocation": false,
+      "autoGenerateFilter":
+      {
+        "columnsNum": 5,
+        "defaultCollapsed": true,
+        "showBtnToolbar": true
+      },
+      "defaultCollapsed": true,
+      "showIndex": false,
+      "api":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/page",
+        "data":
+        {
+          "&": "$$",
+          "One2ManyReq.entity": "${One2ManyReq.entity}",
+          "One2ManyReq.entityField": "${One2ManyReq.entityField}",
+          "One2ManyReq.entityFieldVal": "${One2ManyReq.entityFieldVal}",
+          "BindMiddleChild.entity": "${BindMiddleChild.entity}",
+          "BindMiddleChild.selfField": "${BindMiddleChild.selfField}",
+          "BindMiddleChild.selfFieldVal": "${BindMiddleChild.selfFieldVal}",
+          "BindMiddleChild.joinField": "${BindMiddleChild.joinField}"
+        },
+        "headers":
+        {
+          "bean": "ExportExcel"
+        }
+      },
+      "quickSaveApi":
+      {
+        "method": "post",
+        "url": "/admin/base/amis/quick-save-api",
+        "headers":
+        {
+          "bean": "ExportExcel"
+        }
+      },
+      "headerToolbar":
+      [
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right",
+          "draggable": true,
+          "icon": "fas fa-cog",
+          "footerBtnSize": "sm"
+        },
+        "bulkActions"
+      ],
+      "footerToolbar":
+      [
+        "statistics",
+        {
+          "type": "pagination",
+          "showPageInput": true,
+          "layout": "perPage,pager,go"
+        }
+      ],
+      "bulkActions":
+      [
+        {
+          "type": "hidden",
+          "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        },
+        {
+          "actionType": "dialog",
+          "level": "info",
+          "label": "重新生成",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'重新生成'?,选中:$ids",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "ExportExcel",
+                  "id": "$ids"
+                },
+                "method": "GET",
+                "url": "/admin/export-excel/retry"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        }
+      ],
+      "itemActions":
+      [
+        {
+          "actionType": "dialog",
+          "level": "info",
+          "label": "重新生成",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'重新生成'?,选中:$ExportExcel__id",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "ExportExcel",
+                  "id": "$ExportExcel__id"
+                },
+                "method": "GET",
+                "url": "/admin/export-excel/retry"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
+        },
+        {
+          "label": "详情",
+          "type": "button",
+          "icon": "/icon/btn/详情.svg",
+          "hiddenOnHover": true,
+          "actionType": "dialog",
+          "dialog":
+          {
+            "title": "查看数据「$ExportExcel__id」",
+            "size": "lg",
+            "body":
+            {
+              "type": "form",
+              "initApi":
+              {
+                "method": "post",
+                "url": "/admin/base/amis/view",
+                "data":
+                {
+                  "id": "$ExportExcel__id"
+                },
+                "headers":
+                {
+                  "bean": "ExportExcel"
+                }
+              },
+              "body":
+              [
+                {
+                  "label": "id主键",
+                  "name": "ExportExcel__id",
+                  "required": false,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "步骤",
+                  "name": "ExportExcel__step",
+                  "options":
+                  [
+                    {
+                      "label": "创建",
+                      "value": "CREATED"
+                    },
+                    {
+                      "label": "查数据",
+                      "value": "QUERY_DATA"
+                    },
+                    {
+                      "label": "生成excel",
+                      "value": "GEN_EXCEL"
+                    },
+                    {
+                      "label": "上传",
+                      "value": "UPLOAD"
+                    }
+                  ],
+                  "required": true,
+                  "static": true,
+                  "type": "button-group-select"
+                },
+                {
+                  "label": "步骤状态",
+                  "name": "ExportExcel__stepStatus",
+                  "options":
+                  [
+                    {
+                      "label": "等待",
+                      "value": "wait"
+                    },
+                    {
+                      "label": "进行",
+                      "value": "process"
+                    },
+                    {
+                      "label": "完成",
+                      "value": "finish"
+                    },
+                    {
+                      "label": "错误",
+                      "value": "error"
+                    }
+                  ],
+                  "required": true,
+                  "static": true,
+                  "type": "button-group-select"
+                },
+                {
+                  "label": "实体",
+                  "name": "ExportExcel__beanName",
+                  "required": true,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "请求参数",
+                  "name": "ExportExcel__requestBody",
+                  "required": true,
+                  "static": true,
+                  "type": "input-text"
+                },
+                {
+                  "label": "存储服务",
+                  "name": "ExportExcel__sysFileId",
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "创建人",
+                  "name": "ExportExcel__createUser",
+                  "required": true,
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "最后更新人",
+                  "name": "ExportExcel__updateUser",
+                  "required": true,
+                  "static": true,
+                  "type": "input-number"
+                },
+                {
+                  "label": "备注信息",
+                  "name": "ExportExcel__remark",
+                  "static": true,
+                  "type": "textarea"
+                },
+                {
+                  "label": "创建时间",
+                  "name": "ExportExcel__createTime",
+                  "static": true,
+                  "type": "input-datetime"
+                },
+                {
+                  "label": "最后更新时间",
+                  "name": "ExportExcel__updateTime",
+                  "static": true,
+                  "type": "input-datetime"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "itemBadge":
+      {
+        "text": "${badgeText}",
+        "mode": "ribbon",
+        "position": "top-left",
+        "level": "${badgeLevel}",
+        "visibleOn": "this.badgeText"
+      },
+      "rowClassNameExpr": "${badgeText == '未读' ? 'bg-green-50' : ''}",
+      "columns":
+      [
+        {
+          "label": "id主键",
+          "name": "ExportExcel__id",
+          "sort": -100,
+          "static": false,
+          "type": "static"
+        },
+        {
+          "mode": "simple",
+          "required": true,
+          "type": "steps",
+          "name": "ExportExcel__step",
+          "source":
+          {
+            "data":
+            {
+              "&": "$$"
+            },
+            "method": "GET",
+            "url": ""
+          },
+          "steps":
+          [
+            {
+              "sort": 1,
+              "title": "创建",
+              "value": "CREATED"
+            },
+            {
+              "sort": 2,
+              "title": "查数据",
+              "value": "QUERY_DATA"
+            },
+            {
+              "sort": 3,
+              "title": "生成excel",
+              "value": "GEN_EXCEL"
+            },
+            {
+              "sort": 4,
+              "title": "上传",
+              "value": "UPLOAD"
+            }
+          ],
+          "progressDot": false,
+          "label": "步骤",
+          "className": "",
+          "labelPlacement": "horizontal",
+          "status": "$ExportExcel__stepStatus",
+          "static": true
+        },
+        {
+          "label": "实体",
+          "name": "ExportExcel__beanName",
+          "static": true,
+          "type": "static"
+        },
+        {
+          "size": "md",
+          "required": true,
+          "label": "请求参数",
+          "language": "json",
+          "name": "ExportExcel__requestBody",
+          "width": "500px",
+          "allowFullscreen": true,
+          "placeholder": "",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "type": "editor",
+          "static": true
+        },
+        {
+          "minRows": 3,
+          "type": "textarea",
+          "maxRows": 20,
+          "name": "ExportExcel__remark",
+          "showCounter": true,
+          "clearable": true,
+          "resetValue": "",
+          "trimContents": true,
+          "maxLength": 999,
+          "toggled": false,
+          "readOnly": false,
+          "label": "备注信息",
+          "static": true
+        },
+        {
+          "label": "创建人",
+          "name": "ExportExcel__createUser",
+          "sort": 100,
+          "static": true,
+          "toggled": false,
+          "type": "static"
+        },
+        {
+          "label": "最后更新人",
+          "name": "ExportExcel__updateUser",
+          "sort": 101,
+          "static": true,
+          "toggled": false,
+          "type": "static"
+        },
+        {
+          "label": "创建时间",
+          "name": "ExportExcel__createTime",
+          "sort": 102,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        },
+        {
+          "label": "最后更新时间",
+          "name": "ExportExcel__updateTime",
+          "sort": 103,
+          "static": true,
+          "toggled": false,
+          "type": "static-datetime",
+          "valueFormat": "x",
+          "width": "153px"
+        }
+      ]
+    }
+  ]
+}
