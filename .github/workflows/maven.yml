@@ -85,7 +85,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/pgsql-ext-admin:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/pgsql-ext-admin:${{ github.run_number }}
+            supernpc/pgsql-ext-admin:latest
+            supernpc/pgsql-ext-admin:${{ github.run_number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
