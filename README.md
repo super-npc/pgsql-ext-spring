@@ -15,6 +15,8 @@
 | `pgsql-ext-mq` | PGMQ (Postgres Message Queue) 扩展的二开实现，提供消息队列能力 |
 | `pgsql-ext-admin` | 带 UI 的后台管理界面，方便管理消息队列和配置 |
 
+![admin.png](doc/admin.png)
+![queues.png](doc/queues.png)
 ## 环境要求
 
 - JDK 25
