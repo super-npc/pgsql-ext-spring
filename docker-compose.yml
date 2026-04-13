@@ -33,6 +33,8 @@ services:
       - spring.datasource.dynamic.datasource.my-pgsql.url=jdbc:postgresql://127.0.0.1:5432/pgsql-ext-admin
       - spring.datasource.dynamic.datasource.my-pgsql.username=root
       - spring.datasource.dynamic.datasource.my-pgsql.password=root
+      # 启动消费者
+      - pgmq.consumer-enabled=false
     ports:
       - 9019:9019
 networks:

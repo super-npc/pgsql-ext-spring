@@ -1,8 +1,10 @@
 package bronya.pgsql.ext.mq.autoconfig;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.andreaesposito.pgmq.jdbc.client.PgmqJdbcClient;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;

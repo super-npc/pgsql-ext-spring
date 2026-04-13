@@ -13,6 +13,7 @@ import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
 import bronya.pgsql.ext.mq.autoconfig.strategy.SubscribeStrategy;
 import bronya.pgsql.ext.mq.service.PgMqService;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
@@ -35,6 +36,8 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
 
     private final PgMqService pgMqService;
     private final ApplicationContext applicationContext;
+    private final PgMqConfig pgMqConfig;
+    private final PgMqYaml pgMqYaml;
 
     /**
      * 监听器信息表 (按订阅类型和消息类型分组)
@@ -51,7 +54,12 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     private final List<ConsumerTask> pendingConsumers = new ArrayList<>();
 
     @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
+    public void onApplicationEvent(@NonNull ApplicationReadyEvent event) {
+        if (!pgMqYaml.isConsumerEnabled()) {
+            log.info("PgMq 消费者已禁用，跳过启动消费者");
+            pendingConsumers.clear();
+            return;
+        }
         this.startAllConsumers();
     }
 
