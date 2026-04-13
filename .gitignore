@@ -1,0 +1,69 @@
+# IntelliJ
+out/
+#*.iml
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+.idea
+*.iws
+*.iml
+*.args
+bulinke-starter.iml
+*.ipr
+out
+gen
+/loan_background.iml
+/target/
+upload/
+
+
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+*.go
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
+
+### Maven template
+target/
+# sbteclipse plugin
+.target
+
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
+
+
+/bronya-demo/bronya-demo-face/~./smartjavaai_cache/**
+
+# IDE project files
+.project/
+.settings/

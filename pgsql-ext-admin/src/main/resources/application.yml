@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: pgsql-ext-admin
+  profiles:
+    active: dev
+    include:
+      - project
+project:
+  dashboard: false
+
+server:
+  port: 9019
+
+sa:
+  auth: true
+  name: admin
+  pwd: Temp12138
+
+arthas:
+  agent-id: ${spring.application.name}
+  tunnel-server: ws://arthas:7777/ws  # Arthas Tunnel Server 地址
+  telnet-port: 0  # 随机端口
+  http-port: 0    # 随机端口
