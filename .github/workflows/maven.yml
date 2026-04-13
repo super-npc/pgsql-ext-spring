@@ -38,9 +38,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name:
+        run: |
+          # 初始化空仓库目录
+          mkdir -p life-log
+          cd life-log
+          git init
+          
+          # 关闭Git默认分支提示（清理日志）
+          git config --global init.defaultBranch main
+          
+          # 配置远程仓库（使用内置github.token访问私有仓库）
+          git remote add origin https://${{ secrets.GIT_TOKEN }}@github.com/super-npc/life-log.git
+          
+          # 启用稀疏检出模式
+          git config core.sparseCheckout true
+          
+          # 指定拉取settings.xml和settings-github.xml
+          cat > .git/info/sparse-checkout << EOF
+          /self/cicd/settings-github.xml
+          EOF
+          
+          git pull origin main --depth 1
+
       # 构建 pgsql-ext-admin 并打包 Docker 镜像推送到 hub.docker.com
+      # 说明: settings-github.xml 主要拉取项目依赖,参考: https://github.com/roy20021/pgmq-jdbc-client
       - name: 构建项目
-        run: mvn package -pl pgsql-ext-admin -am -DskipTests
+        run: mvn package -pl pgsql-ext-admin -am -DskipTests -s /home/runner/work/${GITHUB_REPOSITORY#*/}/${GITHUB_REPOSITORY#*/}/life-log/self/cicd/settings-github.xml ${{ env.MAVEN_OPTS }} -T 1C -U
 
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v3
