@@ -1,0 +1,67 @@
+name: build pgsql-ext-spring
+
+on:
+  repository_dispatch:
+    types: [ pgsql-ext-spring ]
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+env:
+  build_modules: pgsql-ext-spring
+  SPRING_PROFILES_ACTIVE: prd
+
+jobs:
+  build-code:
+    name: 构建
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # 构建 pgsql-ext-admin 并打包 Docker 镜像推送到 hub.docker.com
+      - name: 构建项目
+        run: mvn package -pl pgsql-ext-admin -am -DskipTests
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 设置 QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: 登录到 Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 构建并推送镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: ./pgsql-ext-admin
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/pgsql-ext-admin:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/pgsql-ext-admin:${{ github.run_number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
