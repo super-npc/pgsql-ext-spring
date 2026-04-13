@@ -86,6 +86,6 @@ jobs:
           push: true
           tags: |
             supernpc/pgsql-ext-admin:latest
-            supernpc/pgsql-ext-admin:${{ github.run_number }}
+            supernpc/pgsql-ext-admin:1.0-SNAPSHOT
           cache-from: type=gha
           cache-to: type=gha,mode=max

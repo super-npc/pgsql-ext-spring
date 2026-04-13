@@ -24,7 +24,15 @@ services:
       - TZ=Asia/Shanghai
       - spring.profiles.active=prd
       - feign.secret=123456 # 如果未使用微服务调用,固定默认值123456即可
-      - password=123456 # 有使用加密功能,参考Jasypt实现
+      - password=123456 # 有使用加密功能,参考Jasypt实现,没有用到不用管
+      # redis,可以换成自己已有的redis
+      - spring.data.redis.host=127.0.0.1
+      - spring.data.redis.port=6379
+      - spring.data.redis.password=admin
+      # 数据库配置 可以换成自己的pg,只要有pgmq插件
+      - spring.datasource.dynamic.datasource.my-pgsql.url=jdbc:postgresql://127.0.0.1:5432/pgsql-ext-admin
+      - spring.datasource.dynamic.datasource.my-pgsql.username=root
+      - spring.datasource.dynamic.datasource.my-pgsql.password=root
     ports:
       - 9019:9019
 networks:
