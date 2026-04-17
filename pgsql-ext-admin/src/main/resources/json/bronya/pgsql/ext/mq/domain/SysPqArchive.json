@@ -279,6 +279,7 @@
           "width": "153px"
         },
         {
+          "jsonTheme": "twilight",
           "type": "json",
           "className": "",
           "levelExpand": 1,
@@ -287,10 +288,10 @@
           "name": "SysPqArchive__message",
           "placeholder": "请稍等..",
           "mutable": false,
-          "jsonTheme": "twilight",
           "static": true
         },
         {
+          "jsonTheme": "twilight",
           "type": "json",
           "name": "SysPqArchive__headers",
           "label": "元数据",
@@ -299,7 +300,6 @@
           "source": "",
           "placeholder": "请稍等..",
           "mutable": false,
-          "jsonTheme": "twilight",
           "static": true
         },
         {

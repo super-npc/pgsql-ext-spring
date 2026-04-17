@@ -273,6 +273,7 @@
           "width": "153px"
         },
         {
+          "jsonTheme": "twilight",
           "type": "json",
           "className": "",
           "levelExpand": 1,
@@ -280,11 +281,11 @@
           "source": "",
           "placeholder": "请稍等..",
           "mutable": false,
-          "jsonTheme": "twilight",
           "name": "SysPqQueue__message",
           "static": true
         },
         {
+          "jsonTheme": "twilight",
           "type": "json",
           "label": "元数据",
           "className": "",
@@ -293,7 +294,6 @@
           "name": "SysPqQueue__headers",
           "placeholder": "请稍等..",
           "mutable": false,
-          "jsonTheme": "twilight",
           "static": true
         },
         {

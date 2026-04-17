@@ -319,19 +319,9 @@
           "type": "static"
         },
         {
-          "mode": "simple",
           "required": true,
           "type": "steps",
           "name": "ExportExcel__step",
-          "source":
-          {
-            "data":
-            {
-              "&": "$$"
-            },
-            "method": "GET",
-            "url": ""
-          },
           "steps":
           [
             {
@@ -355,8 +345,18 @@
               "value": "UPLOAD"
             }
           ],
+          "mode": "simple",
           "progressDot": false,
           "label": "步骤",
+          "source":
+          {
+            "data":
+            {
+              "&": "$$"
+            },
+            "method": "GET",
+            "url": ""
+          },
           "className": "",
           "labelPlacement": "horizontal",
           "status": "$ExportExcel__stepStatus",
@@ -369,14 +369,14 @@
           "type": "static"
         },
         {
-          "size": "md",
           "required": true,
           "label": "请求参数",
-          "language": "json",
           "name": "ExportExcel__requestBody",
           "width": "500px",
           "allowFullscreen": true,
           "placeholder": "",
+          "language": "json",
+          "size": "md",
           "options":
           {
             "lineNumbers": "off",
