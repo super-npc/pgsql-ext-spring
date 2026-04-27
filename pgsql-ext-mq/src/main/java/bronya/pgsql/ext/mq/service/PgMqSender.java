@@ -30,6 +30,10 @@ public class PgMqSender<T> {
     private final PgMqBeanPostProcessor pgMqBeanPostProcessor;
     private final PgMqService pgMqService;
 
+    public List<Long> send(T t) {
+        return this.send(t,0);
+    }
+
     /**
      * 发送消息
      *
@@ -39,7 +43,7 @@ public class PgMqSender<T> {
      * @return 发送成功的消息 ID 列表（可能发送到多个队列，返回所有消息 ID）
      */
     @SneakyThrows
-    public List<Long> send(T t) {
+    public List<Long> send(T t,int delaySeconds) {
         if (t == null) {
             log.warn("发送的消息对象为空");
             return List.of();
@@ -70,7 +74,7 @@ public class PgMqSender<T> {
 
         if (subscribeType == SubscribeType.CLUSTERING) {
             // CLUSTERING 模式：无论有多少个 PgMqListener，只发送到一个队列（第一个）
-            String queueName = queueNames.get(0);
+            String queueName = queueNames.getFirst();
             List<Long> msgIds = pgMqService.send(queueName, message);
             allMsgIds.addAll(msgIds);
             log.debug("发送消息(CLUSTERING): 队列={}, msgIds={}, 消息={}",
@@ -80,7 +84,7 @@ public class PgMqSender<T> {
         } else {
             // BROADCASTING 模式：发送到所有队列
             for (String queueName : queueNames) {
-                List<Long> msgIds = pgMqService.send(queueName, message);
+                List<Long> msgIds = pgMqService.send(queueName, message,delaySeconds);
                 allMsgIds.addAll(msgIds);
                 log.debug("发送消息(BROADCASTING): 队列={}, msgIds={}, 消息={}",
                         queueName, msgIds, jsonMsg);
