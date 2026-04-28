@@ -20,6 +20,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -33,7 +35,6 @@ import jakarta.annotation.PreDestroy;
 @Component
 @RequiredArgsConstructor
 public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationListener<ApplicationReadyEvent> {
-
     private final PgMqService pgMqService;
     private final ApplicationContext applicationContext;
     private final PgMqConfig pgMqConfig;
@@ -102,9 +103,11 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     @NotNull
     @Override
     public Object postProcessAfterInitialization(@NotNull Object bean, @NotNull String beanName) {
-        Class<?> clazz = bean.getClass();
-        // 遍历所有方法查找 @PgMqListener 注解
-        for (Method method : clazz.getDeclaredMethods()) {
+        Class<?> clazz = ClassUtils.getUserClass(bean); // 获取实际类，避免代理类
+        for (Method method : ReflectionUtils.getAllDeclaredMethods(clazz)) {
+            if (method.isBridge() || method.isSynthetic()) {
+                continue;
+            }
             PgMqListener annotation = AnnotationUtils.findAnnotation(method, PgMqListener.class);
             if (annotation != null) {
                 registerListener(clazz, method, annotation);

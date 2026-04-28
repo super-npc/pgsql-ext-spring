@@ -13,5 +13,5 @@ public class PgMqYaml {
     /**
      * 是否启用消费者，默认 true（启动时自动消费队列消息）
      */
-    private boolean consumerEnabled;
+    private boolean consumerEnabled = true;
 }
