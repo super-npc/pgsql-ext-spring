@@ -319,9 +319,24 @@
           "type": "static"
         },
         {
-          "required": true,
-          "type": "steps",
+          "className": "",
+          "label": "步骤",
+          "labelPlacement": "horizontal",
+          "mode": "simple",
           "name": "ExportExcel__step",
+          "progressDot": false,
+          "required": true,
+          "source":
+          {
+            "data":
+            {
+              "&": "$$"
+            },
+            "method": "GET",
+            "url": ""
+          },
+          "static": true,
+          "status": "$ExportExcel__stepStatus",
           "steps":
           [
             {
@@ -345,22 +360,7 @@
               "value": "UPLOAD"
             }
           ],
-          "mode": "simple",
-          "progressDot": false,
-          "label": "步骤",
-          "source":
-          {
-            "data":
-            {
-              "&": "$$"
-            },
-            "method": "GET",
-            "url": ""
-          },
-          "className": "",
-          "labelPlacement": "horizontal",
-          "status": "$ExportExcel__stepStatus",
-          "static": true
+          "type": "steps"
         },
         {
           "label": "实体",
@@ -369,36 +369,36 @@
           "type": "static"
         },
         {
-          "required": true,
-          "label": "请求参数",
-          "name": "ExportExcel__requestBody",
-          "width": "500px",
           "allowFullscreen": true,
-          "placeholder": "",
+          "label": "请求参数",
           "language": "json",
-          "size": "md",
+          "name": "ExportExcel__requestBody",
           "options":
           {
             "lineNumbers": "off",
             "automaticLayout": true
           },
+          "placeholder": "",
+          "required": true,
+          "size": "md",
+          "static": true,
           "type": "editor",
-          "static": true
+          "width": "500px"
         },
         {
-          "minRows": 3,
-          "type": "textarea",
-          "maxRows": 20,
-          "name": "ExportExcel__remark",
-          "showCounter": true,
           "clearable": true,
-          "resetValue": "",
-          "trimContents": true,
-          "maxLength": 999,
-          "toggled": false,
-          "readOnly": false,
           "label": "备注信息",
-          "static": true
+          "maxLength": 999,
+          "maxRows": 20,
+          "minRows": 3,
+          "name": "ExportExcel__remark",
+          "readOnly": false,
+          "resetValue": "",
+          "showCounter": true,
+          "static": true,
+          "toggled": false,
+          "trimContents": true,
+          "type": "textarea"
         },
         {
           "label": "创建人",

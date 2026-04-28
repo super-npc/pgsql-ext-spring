@@ -273,28 +273,28 @@
           "width": "153px"
         },
         {
-          "jsonTheme": "twilight",
-          "type": "json",
           "className": "",
-          "levelExpand": 1,
+          "jsonTheme": "twilight",
           "label": "消息主体",
-          "source": "",
-          "placeholder": "请稍等..",
+          "levelExpand": 1,
           "mutable": false,
           "name": "SysPqQueue__message",
-          "static": true
+          "placeholder": "请稍等..",
+          "source": "",
+          "static": true,
+          "type": "json"
         },
         {
-          "jsonTheme": "twilight",
-          "type": "json",
-          "label": "元数据",
           "className": "",
+          "jsonTheme": "twilight",
+          "label": "元数据",
           "levelExpand": 1,
-          "source": "",
+          "mutable": false,
           "name": "SysPqQueue__headers",
           "placeholder": "请稍等..",
-          "mutable": false,
-          "static": true
+          "source": "",
+          "static": true,
+          "type": "json"
         },
         {
           "label": "队列",
@@ -376,14 +376,14 @@
                   "map":
                   [
                     {
-                      "color": "#008000",
+                      "color": "#800000",
                       "displayMode": "normal",
                       "label": "已分区",
                       "name": "true",
                       "type": "tag"
                     },
                     {
-                      "color": "#FF0000",
+                      "color": "#FF7F50",
                       "displayMode": "normal",
                       "label": "未分区",
                       "name": "false",
@@ -428,14 +428,14 @@
                   "map":
                   [
                     {
-                      "color": "#008000",
+                      "color": "#D2691E",
                       "displayMode": "normal",
                       "label": "非持久化",
                       "name": "true",
                       "type": "tag"
                     },
                     {
-                      "color": "#FF0000",
+                      "color": "#00008B",
                       "displayMode": "normal",
                       "label": "持久化",
                       "name": "false",

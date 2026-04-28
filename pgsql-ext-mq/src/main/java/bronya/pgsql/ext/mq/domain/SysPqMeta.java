@@ -14,6 +14,7 @@ import bronya.core.base.annotation.amis.type.editor.EditorLanguage;
 import bronya.core.base.constant.AmisPage;
 import bronya.core.base.menu.group.postgres;
 import bronya.core.base.menu.module.系统;
+import bronya.shared.module.common.type.Color;
 import cn.hutool.v7.http.meta.Method;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -50,11 +51,11 @@ public class SysPqMeta {
     private String queueName;
 
     @Column(comment = "分区")
-    @AmisField(switchBool = @AmisSwitch.Switch(onText = "已分区", offText = "未分区"), search = @AmisField.Search(operator = SqlOperator.EQUALS), width = 150)
+    @AmisField(switchBool = @AmisSwitch.Switch(onText = "已分区",onColor = Color.栗色, offText = "未分区",offColor = Color.珊瑚), search = @AmisField.Search(operator = SqlOperator.EQUALS), width = 150)
     private Boolean isPartitioned;
 
     @Column(comment = "类型")
-    @AmisField(switchBool = @AmisSwitch.Switch(onText = "非持久化", offText = "持久化"), search = @AmisField.Search(operator = SqlOperator.EQUALS), width = 150)
+    @AmisField(switchBool = @AmisSwitch.Switch(onText = "非持久化", onColor = Color.巧克力,offText = "持久化",offColor = Color.深蓝色), search = @AmisField.Search(operator = SqlOperator.EQUALS), width = 150)
     private Boolean isUnlogged;
 
     @Column(comment = "创建")
@@ -75,6 +76,12 @@ public class SysPqMeta {
 
     @Data
     public static class SysPqMetaExt {
+        @AmisField(comment = "队列信息",
+                editor = @AmisEditor.Editor(language = EditorLanguage.markdown, markdownRender = true),
+                table = @AmisFieldView(type = AmisFieldView.ViewType.代码编辑器),
+                detail = @AmisFieldView(type = AmisFieldView.ViewType.代码编辑器), width = 300)
+        private String info;
+
         @AmisField(comment = "统计",
                 editor = @AmisEditor.Editor(language = EditorLanguage.markdown, markdownRender = true),
                 table = @AmisFieldView(type = AmisFieldView.ViewType.代码编辑器),

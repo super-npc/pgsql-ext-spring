@@ -68,6 +68,48 @@
         {
           "type": "hidden",
           "label": "必须有兜底的按钮,不然会出现无法多选的情况"
+        },
+        {
+          "actionType": "dialog",
+          "level": "danger",
+          "label": "重放",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'重放'?,选中:$ids",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqArchive",
+                  "id": "$ids"
+                },
+                "method": "GET",
+                "url": "/admin/pqmq/archive/replay"
+              },
+              "body":
+              [
+                
+              ]
+            }
+          }
         }
       ],
       "itemActions":
@@ -126,6 +168,48 @@
                   "static": true,
                   "type": "input-datetime"
                 }
+              ]
+            }
+          }
+        },
+        {
+          "actionType": "dialog",
+          "level": "danger",
+          "label": "重放",
+          "hiddenOnHover": true,
+          "type": "button",
+          "icon": "/icon/btn/执行.svg",
+          "dialog":
+          {
+            "size": "xs",
+            "title": "执行'重放'?,选中:$SysPqArchive__msgId",
+            "closeOnEsc": true,
+            "actions":
+            [
+              {
+                "label": "确认",
+                "actionType": "confirm",
+                "type": "button",
+                "level": "primary"
+              }
+            ],
+            "body":
+            {
+              "type": "form",
+              "mode": "horizontal",
+              "api":
+              {
+                "headers":
+                {
+                  "clasz": "SysPqArchive",
+                  "id": "$SysPqArchive__msgId"
+                },
+                "method": "GET",
+                "url": "/admin/pqmq/archive/replay"
+              },
+              "body":
+              [
+                
               ]
             }
           }
@@ -279,28 +363,28 @@
           "width": "153px"
         },
         {
-          "jsonTheme": "twilight",
-          "type": "json",
           "className": "",
-          "levelExpand": 1,
+          "jsonTheme": "twilight",
           "label": "消息主体",
-          "source": "",
+          "levelExpand": 1,
+          "mutable": false,
           "name": "SysPqArchive__message",
           "placeholder": "请稍等..",
-          "mutable": false,
-          "static": true
+          "source": "",
+          "static": true,
+          "type": "json"
         },
         {
-          "jsonTheme": "twilight",
-          "type": "json",
-          "name": "SysPqArchive__headers",
-          "label": "元数据",
           "className": "",
+          "jsonTheme": "twilight",
+          "label": "元数据",
           "levelExpand": 1,
-          "source": "",
-          "placeholder": "请稍等..",
           "mutable": false,
-          "static": true
+          "name": "SysPqArchive__headers",
+          "placeholder": "请稍等..",
+          "source": "",
+          "static": true,
+          "type": "json"
         },
         {
           "label": "归档时间",
@@ -390,14 +474,14 @@
                   "map":
                   [
                     {
-                      "color": "#008000",
+                      "color": "#800000",
                       "displayMode": "normal",
                       "label": "已分区",
                       "name": "true",
                       "type": "tag"
                     },
                     {
-                      "color": "#FF0000",
+                      "color": "#FF7F50",
                       "displayMode": "normal",
                       "label": "未分区",
                       "name": "false",
@@ -442,14 +526,14 @@
                   "map":
                   [
                     {
-                      "color": "#008000",
+                      "color": "#D2691E",
                       "displayMode": "normal",
                       "label": "非持久化",
                       "name": "true",
                       "type": "tag"
                     },
                     {
-                      "color": "#FF0000",
+                      "color": "#00008B",
                       "displayMode": "normal",
                       "label": "持久化",
                       "name": "false",

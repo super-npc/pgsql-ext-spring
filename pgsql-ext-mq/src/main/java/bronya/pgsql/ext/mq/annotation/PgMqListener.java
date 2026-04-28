@@ -1,5 +1,7 @@
 package bronya.pgsql.ext.mq.annotation;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 
 import java.io.Serializable;
@@ -27,10 +29,14 @@ public @interface PgMqListener {
     PgMqDeadLetterConfig deadLetterConfig() default @PgMqDeadLetterConfig;
 
     // 订阅类型
+    @Getter
+    @AllArgsConstructor
     enum SubscribeType {
         /** 集群：多个消费者竞争消费，每条消息只被消费一次 */
-        CLUSTERING,
+        CLUSTERING("集群"),
         /** 广播：每个消费者独立消费，每条消息被所有消费者消费 */
-        BROADCASTING
+        BROADCASTING("广播");
+
+        private final String desc;
     }
 }

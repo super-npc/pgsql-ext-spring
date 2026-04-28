@@ -262,7 +262,7 @@
                 "One2ManyReq.entity": "SysPqMeta",
                 "One2ManyReq.entityFieldVal": "$SysPqMeta__queueName"
               },
-              "schemaApi": "get:/json/bronya/pgsql/ext/mq/domain/SysPqArchive.json",
+              "schemaApi": "get:\\json\\bronya\\pgsql\\ext\\mq\\domain\\SysPqArchive.json",
               "type": "service"
             },
             "size": "xl",
@@ -285,7 +285,7 @@
                 "One2ManyReq.entity": "SysPqMeta",
                 "One2ManyReq.entityFieldVal": "$SysPqMeta__queueName"
               },
-              "schemaApi": "get:/json/bronya/pgsql/ext/mq/domain/SysPqQueue.json",
+              "schemaApi": "get:\\json\\bronya\\pgsql\\ext\\mq\\domain\\SysPqQueue.json",
               "type": "service"
             },
             "size": "xl",
@@ -478,14 +478,14 @@
           "map":
           [
             {
-              "color": "#008000",
+              "color": "#800000",
               "displayMode": "normal",
               "label": "已分区",
               "name": "true",
               "type": "tag"
             },
             {
-              "color": "#FF0000",
+              "color": "#FF7F50",
               "displayMode": "normal",
               "label": "未分区",
               "name": "false",
@@ -530,14 +530,14 @@
           "map":
           [
             {
-              "color": "#008000",
+              "color": "#D2691E",
               "displayMode": "normal",
               "label": "非持久化",
               "name": "true",
               "type": "tag"
             },
             {
-              "color": "#FF0000",
+              "color": "#00008B",
               "displayMode": "normal",
               "label": "持久化",
               "name": "false",
@@ -576,6 +576,23 @@
           "type": "static-datetime",
           "valueFormat": "x",
           "width": "153px"
+        },
+        {
+          "allowFullscreen": true,
+          "label": "队列信息",
+          "language": "markdown",
+          "name": "SysPqMeta__info",
+          "options":
+          {
+            "lineNumbers": "off",
+            "automaticLayout": true
+          },
+          "placeholder": "",
+          "size": "md",
+          "type": "markdown",
+          "width": "300px",
+          "className": "text-success",
+          "static": true
         },
         {
           "allowFullscreen": true,

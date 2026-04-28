@@ -12,6 +12,7 @@ import bronya.pgsql.ext.mq.annotation.PgMqListener;
 import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
 import bronya.pgsql.ext.mq.autoconfig.strategy.SubscribeStrategy;
 import bronya.pgsql.ext.mq.service.PgMqService;
+import org.andreaesposito.pgmq.jdbc.client.Json;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -47,7 +48,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      * value: 该组合下的所有监听方法信息列表
      */
     @Getter
-    private final TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> listenerTable = TreeBasedTable.create();
+    private final static TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> LISTENER_TABLE = TreeBasedTable.create();
 
     /**
      * 延迟启动的消费者任务列表
@@ -135,8 +136,8 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         SubscribeType subscribeType = annotation.subscribeType();
 
         // 验证：检查该消息类型是否已存在其他 SubscribeType 的注册
-        for (SubscribeType existingType : listenerTable.rowKeySet()) {
-            if (existingType != subscribeType && listenerTable.contains(existingType, msgType)) {
+        for (SubscribeType existingType : LISTENER_TABLE.rowKeySet()) {
+            if (existingType != subscribeType && LISTENER_TABLE.contains(existingType, msgType)) {
                 throw new IllegalStateException(
                     String.format("消息类型 [%s] 已注册为 [%s] 模式，不能同时注册为 [%s] 模式。" +
                                   "一个 bindMsgDto 只能对应一种 SubscribeType。冲突位置: %s.%s",
@@ -147,7 +148,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
 
         // 使用策略模式获取订阅策略
         SubscribeStrategy strategy = SubscribeStrategy.forType(subscribeType);
-        List<ListenerMethodInfo> existingListeners = listenerTable.get(subscribeType, msgType);
+        List<ListenerMethodInfo> existingListeners = LISTENER_TABLE.get(subscribeType, msgType);
         
         // 使用策略生成队列名称
         String queueName = strategy.generateQueueName(msgDtoClass, className, methodName, existingListeners);
@@ -159,10 +160,10 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
                 annotation.batchSize(), annotation.deadLetterConfig());
 
         // 存储到 Table
-        List<ListenerMethodInfo> methodList = listenerTable.get(subscribeType, msgType);
+        List<ListenerMethodInfo> methodList = LISTENER_TABLE.get(subscribeType, msgType);
         if (methodList == null) {
             methodList = new ArrayList<>();
-            listenerTable.put(subscribeType, msgType, methodList);
+            LISTENER_TABLE.put(subscribeType, msgType, methodList);
         }
         methodList.add(methodInfo);
 
@@ -278,7 +279,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     /**
      * 处理消息 - 通过反射调用实际的监听方法
      */
-    private Boolean processMessage(ListenerMethodInfo methodInfo, org.andreaesposito.pgmq.jdbc.client.Json message) {
+    private Boolean processMessage(ListenerMethodInfo methodInfo, Json message) {
         try {
             // 从 Spring 上下文获取 Bean
             Object bean = applicationContext.getBean(Class.forName(methodInfo.className()));
@@ -314,7 +315,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
             ListenerMethodInfo methodInfo, org.andreaesposito.pgmq.jdbc.client.MessageRecord messageRecord) {
         try {
             // 尝试获取消息的 headers，解析重试次数
-            org.andreaesposito.pgmq.jdbc.client.Json headers = extractHeadersFromMessageRecord(messageRecord);
+            Json headers = extractHeadersFromMessageRecord(messageRecord);
             int retryCount = getRetryCountFromHeaders(headers);
             String traceId = getTraceIdFromHeaders(headers);
             
@@ -367,30 +368,30 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     /**
      * 从 MessageRecord 中提取 Headers
      */
-    private org.andreaesposito.pgmq.jdbc.client.Json extractHeadersFromMessageRecord(
+    private Json extractHeadersFromMessageRecord(
             org.andreaesposito.pgmq.jdbc.client.MessageRecord messageRecord) {
         try {
             // 尝试通过反射获取 headers 字段
             var headersField = messageRecord.getClass().getMethod("headers");
             Object headersObj = headersField.invoke(messageRecord);
             
-            if (headersObj instanceof org.andreaesposito.pgmq.jdbc.client.Json) {
-                return (org.andreaesposito.pgmq.jdbc.client.Json) headersObj;
+            if (headersObj instanceof Json) {
+                return (Json) headersObj;
             } else if (headersObj != null) {
-                return new org.andreaesposito.pgmq.jdbc.client.Json(headersObj.toString());
+                return new Json(headersObj.toString());
             }
         } catch (Exception e) {
             // 如果无法获取 headers，返回空对象
         }
         
-        return new org.andreaesposito.pgmq.jdbc.client.Json("{}");
+        return new Json("{}");
     }
     
     // 修复：更改返回类型为 MessageProcessResult，但保留原有参数
     /**
      * 从 Headers 中解析重试次数
      */
-    private int getRetryCountFromHeaders(org.andreaesposito.pgmq.jdbc.client.Json headers) {
+    private int getRetryCountFromHeaders(Json headers) {
         if (headers == null || headers.value() == null || "{}".equals(headers.value())) {
             return 0;
         }
@@ -424,7 +425,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     /**
      * 从 Headers 中解析跟踪 ID
      */
-    private String getTraceIdFromHeaders(org.andreaesposito.pgmq.jdbc.client.Json headers) {
+    private String getTraceIdFromHeaders(Json headers) {
         if (headers == null || headers.value() == null || "{}".equals(headers.value())) {
             return "unknown";
         }
@@ -470,13 +471,14 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      * 一个消息类型只能对应一种订阅类型
      */
     public SubscribeType getSubscribeType(String msgType) {
-        for (SubscribeType type : listenerTable.rowKeySet()) {
-            if (listenerTable.contains(type, msgType)) {
+        for (SubscribeType type : LISTENER_TABLE.rowKeySet()) {
+            if (LISTENER_TABLE.contains(type, msgType)) {
                 return type;
             }
         }
         return null;
     }
+
 
     /**
      * 获取指定消息类型的监听方法列表
@@ -486,15 +488,8 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         if (type == null) {
             return List.of();
         }
-        List<ListenerMethodInfo> methods = listenerTable.get(type, msgType);
+        List<ListenerMethodInfo> methods = LISTENER_TABLE.get(type, msgType);
         return methods != null ? List.copyOf(methods) : List.of();
-    }
-
-    /**
-     * 获取指定消息类型的监听方法数量
-     */
-    public int getListenerCount(String msgType) {
-        return getListenerMethods(msgType).size();
     }
 
     /**

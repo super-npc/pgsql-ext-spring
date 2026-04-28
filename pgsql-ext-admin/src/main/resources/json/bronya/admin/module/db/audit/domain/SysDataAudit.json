@@ -202,19 +202,19 @@
           "type": "static"
         },
         {
-          "minRows": 3,
-          "type": "textarea",
-          "maxRows": 20,
-          "name": "SysDataAudit__remark",
-          "showCounter": true,
           "clearable": true,
-          "resetValue": "",
-          "trimContents": true,
-          "maxLength": 999,
-          "toggled": false,
-          "readOnly": false,
           "label": "备注信息",
-          "static": true
+          "maxLength": 999,
+          "maxRows": 20,
+          "minRows": 3,
+          "name": "SysDataAudit__remark",
+          "readOnly": false,
+          "resetValue": "",
+          "showCounter": true,
+          "static": true,
+          "toggled": false,
+          "trimContents": true,
+          "type": "textarea"
         },
         {
           "diffValue": "$SysDataAudit__newData",

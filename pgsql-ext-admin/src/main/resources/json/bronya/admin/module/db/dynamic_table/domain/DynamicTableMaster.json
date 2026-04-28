@@ -126,7 +126,7 @@
                 "One2ManyReq.entity": "DynamicTableMaster",
                 "One2ManyReq.entityFieldVal": "$DynamicTableMaster__id"
               },
-              "schemaApi": "get:/json/bronya/admin/module/db/dynamic_table/domain/DynamicTableSlave.json",
+              "schemaApi": "get:\\json\\bronya\\admin\\module\\db\\dynamic_table\\domain\\DynamicTableSlave.json",
               "type": "service"
             },
             "size": "xl",
@@ -270,19 +270,19 @@
           "type": "static"
         },
         {
-          "minRows": 3,
-          "type": "textarea",
-          "maxRows": 20,
-          "showCounter": true,
           "clearable": true,
-          "resetValue": "",
-          "trimContents": true,
-          "name": "DynamicTableMaster__remark",
-          "maxLength": 999,
-          "toggled": false,
-          "readOnly": false,
           "label": "备注信息",
-          "static": true
+          "maxLength": 999,
+          "maxRows": 20,
+          "minRows": 3,
+          "name": "DynamicTableMaster__remark",
+          "readOnly": false,
+          "resetValue": "",
+          "showCounter": true,
+          "static": true,
+          "toggled": false,
+          "trimContents": true,
+          "type": "textarea"
         },
         {
           "allowFullscreen": true,

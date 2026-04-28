@@ -6,9 +6,11 @@ import bronya.core.base.annotation.amis.gencode.table.BindMany2One;
 import bronya.core.base.annotation.amis.page.Amis;
 import bronya.core.base.annotation.amis.page.Btns;
 import bronya.core.base.annotation.amis.page.Menu;
+import bronya.core.base.annotation.amis.page.Operation;
 import bronya.core.base.constant.AmisPage;
 import bronya.core.base.menu.group.postgres;
 import bronya.core.base.menu.module.系统;
+import cn.hutool.v7.http.meta.Method;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.mybatisflex.core.constant.SqlOperator;
@@ -30,7 +32,10 @@ import java.util.Date;
 @FieldNameConstants
 @Amis(dynamicTablePlan = PgMqADynamicTablePlan.class,ext = @Amis.ExpandField(extBean = SysPqArchive.SysPqArchiveExt.class,dataProxy = SysPqArchiveProxy.class))
 @AmisPage(menu = @Menu(show = false, module = 系统.class, group = postgres.class, menu = "pg队列",order = 1),
-        btns = @Btns(add = false, edit = false, delete = false))
+        btns = @Btns(add = false, edit = false, delete = false),
+        operation = @Operation(optBtns = {
+                @Operation.OptBtn(name = "重放", level = Operation.BtnLevelType.danger, method = Method.GET, batch = true, url = "/admin/pqmq/archive/replay")
+        }))
 public class SysPqArchive{
     @ColumnId(mode = IdType.INPUT, comment = "消息id")
     @AmisField(search = @AmisField.Search(operator = SqlOperator.EQUALS),sortable = true, copyable = true)
