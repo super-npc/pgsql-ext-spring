@@ -13,6 +13,12 @@ Accept: application/json
 
 ###
 
+### 发送集群消息（延迟5秒）
+GET {{base}}/send-clustering-delay-5s
+Accept: application/json
+
+###
+
 ### 发送集群消息（异常触发归档）
 GET {{base}}/send-clustering-archive
 Accept: application/json

@@ -75,7 +75,7 @@ public class PgMqSender<T> {
         if (subscribeType == SubscribeType.CLUSTERING) {
             // CLUSTERING 模式：无论有多少个 PgMqListener，只发送到一个队列（第一个）
             String queueName = queueNames.getFirst();
-            List<Long> msgIds = pgMqService.send(queueName, message);
+            List<Long> msgIds = pgMqService.send(queueName, message, delaySeconds);
             allMsgIds.addAll(msgIds);
             log.debug("发送消息(CLUSTERING): 队列={}, msgIds={}, 消息={}",
                     queueName, msgIds, jsonMsg);

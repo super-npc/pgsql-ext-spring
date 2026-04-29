@@ -50,17 +50,19 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
         List<ListenerMethodInfo> allListeners = listenerTable.values().stream().flatMap(List::stream).toList();
         List<ListenerMethodInfo> queues = allListeners.stream().filter(a -> a.queueName().equalsIgnoreCase(sysPqMeta.getQueueName())).toList();
         Md md = new Md();
-        md.appendLn(new Quote("监听信息,数量:"+queues.size()));
+        md.appendLn(new Quote("监听者实现数:"+queues.size()));
         for (ListenerMethodInfo queue : queues) {
-            md.appendLn(StrUtil.format("- {}.{}", SplitUtil.split(queue.className(),".").getLast(),queue.methodName()));
+            md.appendLn(StrUtil.format("- {} # {}", SplitUtil.split(queue.className(),".").getLast(),queue.methodName()));
             md.appendLn("  - 类型:{}",queue.subscribeType().getDesc());
-            md.appendLn("  - dto:{}",queue.msgDtoClass().getSimpleName());
-            md.appendLn("  - batchSize:{}",queue.batchSize());
+            md.appendLn("  - 承载类:{}",queue.msgDtoClass().getSimpleName());
+            md.appendLn("  - 批量拉取量:{}",queue.batchSize());
             md.appendLn("  - 可见性超时时间:{}秒",queue.visibilityTimeout());
             PgMqDeadLetterConfig pgMqDeadLetterConfig = queue.deadLetterConfig();
-            md.appendLn("    - 开启死信:{}",Md.emojiBool(pgMqDeadLetterConfig.enableDlq()));
-            md.appendLn("    - 最大重试次数:{}",pgMqDeadLetterConfig.maxRetry());
-            md.appendLn("    - 重试延迟时间:{}秒 (0立即重试)",pgMqDeadLetterConfig.retryDelaySeconds());
+            md.appendLn("  - 开启死信:{}",Md.emojiBool(pgMqDeadLetterConfig.enableDlq()));
+            if(pgMqDeadLetterConfig.enableDlq()){
+                md.appendLn("    - 最大重试次数:{}",pgMqDeadLetterConfig.maxRetry());
+                md.appendLn("    - 重试延迟时间:{}秒 (0立即重试)",pgMqDeadLetterConfig.retryDelaySeconds());
+            }
         }
         return md.toString();
     }
@@ -71,12 +73,12 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
             MetricResult metrics = pgMqService.metrics(sysPqMeta.getQueueName());
             md.appendLn(new Quote("统计数据"));
             md.appendLn("- 名称:{}", metrics.queueName());
-            md.appendLn("- 队列长度:{}", metrics.queueLength());
-            md.appendLn("- 最新消息年龄(秒):{}", DateUtil.formatBetween(metrics.newestMsgAgeSec() * 1000L));
-            md.appendLn("- 最旧消息年龄(秒):{}", DateUtil.formatBetween(metrics.oldestMsgAgeSec() * 1000L));
-            md.appendLn("- 消息总数:{}", metrics.totalMessages());
-            md.appendLn("- 统计时间:{}", DateUtil.formatDateTime(Date.from(metrics.scrapeTime().toInstant())));
+            md.appendLn("- 总消息数:{}", metrics.totalMessages());
             md.appendLn("- 可见消息数:{}", metrics.queueVisibleLength());
+            md.appendLn("- 队列长度:{}", metrics.queueLength());
+            md.appendLn("- 最新消息:{}", DateUtil.formatBetween(metrics.newestMsgAgeSec() * 1000L));
+            md.appendLn("- 最旧消息:{}", DateUtil.formatBetween(metrics.oldestMsgAgeSec() * 1000L));
+            md.appendLn("- 统计时间:{}", DateUtil.formatDateTime(Date.from(metrics.scrapeTime().toInstant())));
         } catch (SQLException e) {
             log.warn("获取队列指标异常", e);
         }

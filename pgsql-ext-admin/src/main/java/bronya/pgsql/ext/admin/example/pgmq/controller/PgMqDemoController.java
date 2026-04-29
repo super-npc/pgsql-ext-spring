@@ -34,6 +34,12 @@ public class PgMqDemoController {
         log.info("测试发送集群:{}",msgId);
     }
 
+    @GetMapping("/send-clustering-delay-5s")
+    public void sendClusteringDelay5s(){
+        List<Long> msgId = clusteringSender.send(new DemoPgMqClusteringDto(RandomUtil.randomLetters(5)),5);
+        log.info("测试发送集群-延迟5秒:{}",msgId);
+    }
+
     @GetMapping("/send-clustering-archive")
     public void sendClusteringArchive(){
         List<Long> msgId = clusteringArchiveSender.send(new DemoPgMqClusteringArchiveDto(RandomUtil.randomLetters(5)));
