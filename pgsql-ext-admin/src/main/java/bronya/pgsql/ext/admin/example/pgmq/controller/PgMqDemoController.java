@@ -1,6 +1,7 @@
 package bronya.pgsql.ext.admin.example.pgmq.controller;
 
 import bronya.pgsql.ext.admin.example.pgmq.handler.dto.DemoPgMqBroadcastingDto;
+import bronya.pgsql.ext.admin.example.pgmq.handler.dto.DemoPgMqClusteringArchiveDto;
 import bronya.pgsql.ext.admin.example.pgmq.handler.dto.DemoPgMqClusteringDto;
 import cn.hutool.v7.core.util.RandomUtil;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 public class PgMqDemoController {
     private final PgMqSender<DemoPgMqBroadcastingDto> broadcastingSender;
     private final PgMqSender<DemoPgMqClusteringDto> clusteringSender;
+    private final PgMqSender<DemoPgMqClusteringArchiveDto> clusteringArchiveSender;
 
     @GetMapping("/send-broadcasting")
     public void sendBroadcasting(){
@@ -30,5 +32,11 @@ public class PgMqDemoController {
     public void sendClustering(){
         List<Long> msgId = clusteringSender.send(new DemoPgMqClusteringDto(RandomUtil.randomLetters(5)));
         log.info("测试发送集群:{}",msgId);
+    }
+
+    @GetMapping("/send-clustering-archive")
+    public void sendClusteringArchive(){
+        List<Long> msgId = clusteringArchiveSender.send(new DemoPgMqClusteringArchiveDto(RandomUtil.randomLetters(5)));
+        log.info("测试发送集群-异常触发归档:{}",msgId);
     }
 }

@@ -25,6 +25,7 @@ sa:
   auth: false
   name: admin
   pwd: admin
+  exclude: "/demo/pgmq/**"
 
 arthas:
   tunnel-server: ws://arthas:7777/ws  # Arthas Tunnel Server 地址

@@ -1,0 +1,18 @@
+@host = http://localhost:9019
+@base = {{host}}/demo/pgmq
+
+### 发送广播消息
+GET {{base}}/send-broadcasting
+Accept: application/json
+
+###
+
+### 发送集群消息
+GET {{base}}/send-clustering
+Accept: application/json
+
+###
+
+### 发送集群消息（异常触发归档）
+GET {{base}}/send-clustering-archive
+Accept: application/json
