@@ -19,6 +19,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import jakarta.annotation.PreDestroy;
 
 @Slf4j
@@ -98,7 +100,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     /**
      * 消费者任务
      */
-    private record ConsumerTask(String queueName, ListenerMethodInfo methodInfo) {
+    private record ConsumerTask(String queueName, ListenerMethodInfo methodInfo, boolean needCreateQueue) {
     }
 
     @NotNull
@@ -170,18 +172,17 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         // 使用策略判断是否需要创建队列
         boolean needCreateQueue = strategy.shouldCreateQueue(existingListeners);
 
+        // 暂存消费者任务
+        pendingConsumers.add(new ConsumerTask(queueName, methodInfo, needCreateQueue));
+
         if (needCreateQueue) {
-            pgMqService.create(queueName);
-            log.info("创建队列: {} (类型={}, VT={}s, 批量={})",
+            log.info("检测到新队列，启动消费者时创建: {} (类型={}, VT={}s, 批量={})",
                 queueName, subscribeType,
                 methodInfo.visibilityTimeout(), methodInfo.batchSize());
         } else {
             log.info("复用队列: {} (类型={}, 类={}, 方法={})",
                 queueName, subscribeType, className, methodName);
         }
-
-        // 暂存消费者任务
-        pendingConsumers.add(new ConsumerTask(queueName, methodInfo));
 
         log.debug("注册PgMqListener: 订阅类型={}, 消息类型={}, 队列={}, 类={}, 方法={}",
                 subscribeType, msgType, queueName, className, methodName);
@@ -213,7 +214,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
 
                     try {
                         Thread.sleep(100L * consumerIndex); // 错峰启动
-                        startConsumer(task.queueName(), info, consumerIndex);
+                        startConsumer(task.queueName(), info, consumerIndex, task.needCreateQueue());
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         log.warn("消费者线程被中断: 队列={}", task.queueName());
@@ -230,7 +231,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     /**
      * 启动消费者线程
      */
-    private void startConsumer(String queueName, ListenerMethodInfo methodInfo, int consumerIndex) {
+    private void startConsumer(String queueName, ListenerMethodInfo methodInfo, int consumerIndex, boolean needCreateQueue) {
         String threadName = String.format("%s-%d", queueName, consumerIndex);
         Thread.currentThread().setName(threadName);
 
@@ -239,9 +240,14 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
                 methodInfo.className(), methodInfo.methodName());
 
         int consecutiveErrors = 0;
-        final int maxConsecutiveErrors = 5;
+        if (needCreateQueue) {
+            this.ensureQueueCreated(queueName);
+        }
 
         while (!Thread.currentThread().isInterrupted()) {
+            if (!isApplicationContextActive()) {
+                break;
+            }
             try {
                 if (methodInfo.enableDlq()) {
                     // 使用重试感知的消费方法
@@ -258,12 +264,6 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
                 log.error("消费者异常: queue={}, consumer={}, error={}",
                     queueName, consumerIndex, e.getMessage());
 
-                if (consecutiveErrors >= maxConsecutiveErrors) {
-                    log.error("消费者连续失败 {} 次，停止消费: queue={}",
-                        maxConsecutiveErrors, queueName);
-                    break;
-                }
-
                 try {
                     Thread.sleep(Math.min(1000L * consecutiveErrors, 10000)); // 指数退避
                 } catch (InterruptedException ie) {
@@ -274,6 +274,34 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         }
 
         log.info("消费者线程已结束: queue={}, consumer={}", queueName, consumerIndex);
+    }
+
+    private void ensureQueueCreated(String queueName) {
+        int retry = 0;
+        while (!Thread.currentThread().isInterrupted() && isApplicationContextActive()) {
+            try {
+                pgMqService.create(queueName);
+                log.info("创建队列成功: {}", queueName);
+                return;
+            } catch (Exception e) {
+                retry++;
+                long sleepMs = Math.min(1000L * retry, 10000);
+                log.warn("创建队列失败，将重试: queue={}, retry={}, error={}", queueName, retry, e.getMessage());
+                try {
+                    Thread.sleep(sleepMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+    }
+
+    private boolean isApplicationContextActive() {
+        if (applicationContext instanceof ConfigurableApplicationContext configurableApplicationContext) {
+            return configurableApplicationContext.isActive();
+        }
+        return true;
     }
 
     /**
@@ -507,7 +535,12 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     @PreDestroy
     public void shutdown() {
         if (!consumerExecutor.isShutdown()) {
-            consumerExecutor.shutdown();
+            consumerExecutor.shutdownNow();
+            try {
+                consumerExecutor.awaitTermination(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             log.info("PgMq 消费者线程池已关闭");
         }
     }

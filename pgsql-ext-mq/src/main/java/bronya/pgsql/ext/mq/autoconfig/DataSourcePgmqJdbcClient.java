@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.andreaesposito.pgmq.jdbc.client.*;
 
 import javax.sql.DataSource;
+import jakarta.annotation.PreDestroy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
@@ -22,17 +23,34 @@ import java.util.Optional;
 public class DataSourcePgmqJdbcClient extends PgmqJdbcClient {
 
     private final DataSource dataSource;
+    private final Connection bootstrapConnection;
 
     /**
      * 使用临时连接初始化父类（不会被实际使用）
      */
     public DataSourcePgmqJdbcClient(DataSource dataSource) throws SQLException {
-        super(getTempConnection(dataSource));
+        this(getTempConnection(dataSource), dataSource);
+    }
+
+    private DataSourcePgmqJdbcClient(Connection bootstrapConnection, DataSource dataSource) throws SQLException {
+        super(bootstrapConnection);
+        this.bootstrapConnection = bootstrapConnection;
         this.dataSource = dataSource;
     }
 
     private static Connection getTempConnection(DataSource ds) throws SQLException {
         return ds.getConnection();
+    }
+
+    @PreDestroy
+    public void closeBootstrapConnection() {
+        try {
+            if (bootstrapConnection != null && !bootstrapConnection.isClosed()) {
+                bootstrapConnection.close();
+            }
+        } catch (Exception e) {
+            log.warn("关闭 bootstrapConnection 失败: {}", e.getMessage());
+        }
     }
 
     /**
