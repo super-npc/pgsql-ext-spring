@@ -1,0 +1,31 @@
+@host = http://localhost:9019
+@base = {{host}}/demo/pgmq/bench
+
+### 查看压测统计
+GET {{base}}/stats
+Accept: application/json
+
+###
+
+### 重置统计
+GET {{base}}/reset
+Accept: application/json
+
+###
+
+### 配置消费者行为（处理耗时/失败率）
+### consumerSleepMs: 每条消息处理前 sleep 毫秒数（模拟慢消费）
+### consumerFailRatePercent: 0-100，按概率抛异常（模拟业务失败，触发重试/DLQ）
+GET {{base}}/config?consumerSleepMs=0&consumerFailRatePercent=0
+Accept: application/json
+
+###
+
+### 启动压测发送（并发虚拟线程发送）
+### totalMessages: 总发送条数
+### threads: 发送并发数（虚拟线程数）
+### payloadSize: payload 随机字符串长度
+### delaySeconds: 发送延迟秒数（0 表示立即发送）
+GET {{base}}/start?totalMessages=10000&threads=20&payloadSize=32&delaySeconds=0
+Accept: application/json
+
