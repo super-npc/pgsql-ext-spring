@@ -20,6 +20,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
@@ -29,6 +31,7 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -50,12 +53,15 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      * value: 该组合下的所有监听方法信息列表
      */
     @Getter
-    private final static TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> LISTENER_TABLE = TreeBasedTable.create();
+    private final TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> listenerTable = TreeBasedTable.create();
 
     /**
      * 延迟启动的消费者任务列表
      */
     private final List<ConsumerTask> pendingConsumers = new ArrayList<>();
+
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicBoolean running = new AtomicBoolean(true);
 
     @Override
     public void onApplicationEvent(@NonNull ApplicationReadyEvent event) {
@@ -67,10 +73,15 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         this.startAllConsumers();
     }
 
+    @EventListener(ContextClosedEvent.class)
+    public void onContextClosed(ContextClosedEvent event) {
+        stopConsumers();
+    }
+
     /**
      * 记录监听器方法信息
      */
-    public record ListenerMethodInfo(String queueName, String className, String methodName,
+    public record ListenerMethodInfo(String queueName, String className, String methodName, String beanName,
                                       Class<?> msgDtoClass, SubscribeType subscribeType,
                                       int visibilityTimeout, int batchSize,
                                       PgMqDeadLetterConfig deadLetterConfig) {
@@ -113,7 +124,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
             }
             PgMqListener annotation = AnnotationUtils.findAnnotation(method, PgMqListener.class);
             if (annotation != null) {
-                registerListener(clazz, method, annotation);
+                registerListener(clazz, beanName, method, annotation);
             }
         }
         return bean;
@@ -130,7 +141,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      * 注册监听器
      * @throws IllegalStateException 当同一个消息类型存在多种 SubscribeType 时抛出
      */
-    private void registerListener(Class<?> clazz, Method method, PgMqListener annotation) {
+    private void registerListener(Class<?> clazz, String beanName, Method method, PgMqListener annotation) {
         Class<?> msgDtoClass = annotation.bindMsgDto();
         String msgType = msgDtoClass.getName();
         String className = clazz.getName();
@@ -138,8 +149,8 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         SubscribeType subscribeType = annotation.subscribeType();
 
         // 验证：检查该消息类型是否已存在其他 SubscribeType 的注册
-        for (SubscribeType existingType : LISTENER_TABLE.rowKeySet()) {
-            if (existingType != subscribeType && LISTENER_TABLE.contains(existingType, msgType)) {
+        for (SubscribeType existingType : listenerTable.rowKeySet()) {
+            if (existingType != subscribeType && listenerTable.contains(existingType, msgType)) {
                 throw new IllegalStateException(
                     String.format("消息类型 [%s] 已注册为 [%s] 模式，不能同时注册为 [%s] 模式。" +
                                   "一个 bindMsgDto 只能对应一种 SubscribeType。冲突位置: %s.%s",
@@ -150,22 +161,22 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
 
         // 使用策略模式获取订阅策略
         SubscribeStrategy strategy = SubscribeStrategy.forType(subscribeType);
-        List<ListenerMethodInfo> existingListeners = LISTENER_TABLE.get(subscribeType, msgType);
+        List<ListenerMethodInfo> existingListeners = listenerTable.get(subscribeType, msgType);
         
         // 使用策略生成队列名称
         String queueName = strategy.generateQueueName(msgDtoClass, className, methodName, existingListeners);
 
         // 创建监听器信息（包含注解配置）
         ListenerMethodInfo methodInfo = new ListenerMethodInfo(
-                queueName, className, methodName, msgDtoClass, subscribeType,
+                queueName, className, methodName, beanName, msgDtoClass, subscribeType,
                 annotation.visibilityTimeout(),
                 annotation.batchSize(), annotation.deadLetterConfig());
 
         // 存储到 Table
-        List<ListenerMethodInfo> methodList = LISTENER_TABLE.get(subscribeType, msgType);
+        List<ListenerMethodInfo> methodList = listenerTable.get(subscribeType, msgType);
         if (methodList == null) {
             methodList = new ArrayList<>();
-            LISTENER_TABLE.put(subscribeType, msgType, methodList);
+            listenerTable.put(subscribeType, msgType, methodList);
         }
         methodList.add(methodInfo);
 
@@ -193,7 +204,10 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      * Spring 上下文完全初始化后启动所有消费者
      */
     public void startAllConsumers() {
-        if (pendingConsumers.isEmpty()) {
+        if (pendingConsumers.isEmpty() || !running.get()) {
+            return;
+        }
+        if (!started.compareAndSet(false, true)) {
             return;
         }
 
@@ -244,7 +258,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
             this.ensureQueueCreated(queueName);
         }
 
-        while (!Thread.currentThread().isInterrupted()) {
+        while (running.get() && !Thread.currentThread().isInterrupted()) {
             if (!isApplicationContextActive()) {
                 break;
             }
@@ -310,7 +324,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     private Boolean processMessage(ListenerMethodInfo methodInfo, Json message) {
         try {
             // 从 Spring 上下文获取 Bean
-            Object bean = applicationContext.getBean(Class.forName(methodInfo.className()));
+            Object bean = applicationContext.getBean(methodInfo.beanName());
 
             // 获取方法
             Method method = findMethod(bean.getClass(), methodInfo.methodName(), methodInfo.msgDtoClass());
@@ -348,7 +362,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
             String traceId = getTraceIdFromHeaders(headers);
             
             // 从 Spring 上下文获取 Bean
-            Object bean = applicationContext.getBean(Class.forName(methodInfo.className()));
+            Object bean = applicationContext.getBean(methodInfo.beanName());
 
             // 获取方法
             Method method = findMethod(bean.getClass(), methodInfo.methodName(), methodInfo.msgDtoClass());
@@ -499,8 +513,8 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      * 一个消息类型只能对应一种订阅类型
      */
     public SubscribeType getSubscribeType(String msgType) {
-        for (SubscribeType type : LISTENER_TABLE.rowKeySet()) {
-            if (LISTENER_TABLE.contains(type, msgType)) {
+        for (SubscribeType type : listenerTable.rowKeySet()) {
+            if (listenerTable.contains(type, msgType)) {
                 return type;
             }
         }
@@ -516,7 +530,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         if (type == null) {
             return List.of();
         }
-        List<ListenerMethodInfo> methods = LISTENER_TABLE.get(type, msgType);
+        List<ListenerMethodInfo> methods = listenerTable.get(type, msgType);
         return methods != null ? List.copyOf(methods) : List.of();
     }
 
@@ -534,6 +548,15 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
      */
     @PreDestroy
     public void shutdown() {
+        stopConsumers();
+    }
+
+    private void stopConsumers() {
+        if (!running.compareAndSet(true, false)) {
+            return;
+        }
+        pendingConsumers.clear();
+        listenerTable.clear();
         if (!consumerExecutor.isShutdown()) {
             consumerExecutor.shutdownNow();
             try {
@@ -541,7 +564,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            log.info("PgMq 消费者线程池已关闭");
         }
+        log.info("PgMq 消费者线程池已关闭");
     }
 }

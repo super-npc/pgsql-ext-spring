@@ -31,6 +31,7 @@ import java.util.*;
 public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
     private final SysPqMetaRepository sysPqMetaRepository;
     private final PgMqService pgMqService;
+    private final PgMqBeanPostProcessor pgMqBeanPostProcessor;
 
     @Override
     public void table(Map<String, Object> map) {
@@ -46,7 +47,7 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
     }
 
     private String getQueueInfo(SysPqMeta sysPqMeta){
-        TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> listenerTable = PgMqBeanPostProcessor.getLISTENER_TABLE();
+        TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> listenerTable = pgMqBeanPostProcessor.getListenerTable();
         List<ListenerMethodInfo> allListeners = listenerTable.values().stream().flatMap(List::stream).toList();
         List<ListenerMethodInfo> queues = allListeners.stream().filter(a -> a.queueName().equalsIgnoreCase(sysPqMeta.getQueueName())).toList();
         Md md = new Md();
