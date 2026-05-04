@@ -1,6 +1,7 @@
 package bronya.pgsql.ext.mq.autoconfig;
 
 
+import cn.hutool.v7.extra.spring.SpringUtil;
 import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.TreeBasedTable;
 import lombok.Getter;
@@ -42,10 +43,7 @@ import jakarta.annotation.PreDestroy;
 @RequiredArgsConstructor
 public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationListener<ApplicationReadyEvent> {
     private final PgMqService pgMqService;
-    private final ApplicationContext applicationContext;
-    private final PgMqConfig pgMqConfig;
     private final PgMqYaml pgMqYaml;
-
     /**
      * 监听器信息表 (按订阅类型和消息类型分组)
      * rowKey: 订阅类型 (CLUSTERING/BROADCASTING)
@@ -259,9 +257,6 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         }
 
         while (running.get() && !Thread.currentThread().isInterrupted()) {
-            if (!isApplicationContextActive()) {
-                break;
-            }
             try {
                 if (methodInfo.enableDlq()) {
                     // 使用重试感知的消费方法
@@ -292,7 +287,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
 
     private void ensureQueueCreated(String queueName) {
         int retry = 0;
-        while (!Thread.currentThread().isInterrupted() && isApplicationContextActive()) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 pgMqService.create(queueName);
                 log.info("创建队列成功: {}", queueName);
@@ -311,20 +306,13 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         }
     }
 
-    private boolean isApplicationContextActive() {
-        if (applicationContext instanceof ConfigurableApplicationContext configurableApplicationContext) {
-            return configurableApplicationContext.isActive();
-        }
-        return true;
-    }
-
     /**
      * 处理消息 - 通过反射调用实际的监听方法
      */
     private Boolean processMessage(ListenerMethodInfo methodInfo, Json message) {
         try {
             // 从 Spring 上下文获取 Bean
-            Object bean = applicationContext.getBean(methodInfo.beanName());
+            Object bean = SpringUtil.getBean(methodInfo.beanName());
 
             // 获取方法
             Method method = findMethod(bean.getClass(), methodInfo.methodName(), methodInfo.msgDtoClass());
@@ -362,7 +350,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
             String traceId = getTraceIdFromHeaders(headers);
             
             // 从 Spring 上下文获取 Bean
-            Object bean = applicationContext.getBean(methodInfo.beanName());
+            Object bean = SpringUtil.getBean(methodInfo.beanName());
 
             // 获取方法
             Method method = findMethod(bean.getClass(), methodInfo.methodName(), methodInfo.msgDtoClass());
@@ -557,6 +545,8 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         }
         pendingConsumers.clear();
         listenerTable.clear();
+
+
         if (!consumerExecutor.isShutdown()) {
             consumerExecutor.shutdownNow();
             try {

@@ -1,5 +1,6 @@
 package bronya.pgsql.ext.mq.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -124,10 +125,8 @@ public class PgMqService {
         return cli.readWithPoll(queue, visibilityTimeoutSeconds, pollSeconds, filter);
     }
 
-    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int quantity,
-                                             int pollSeconds, int pollIntervalMs, Json filter) throws SQLException {
-        log.debug("高级轮询读取队列: {}, VT: {}秒, 数量: {}, 轮询: {}秒, 间隔: {}ms",
-                queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs);
+    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int quantity, int pollSeconds, int pollIntervalMs, Json filter) throws SQLException {
+        log.debug("高级轮询读取队列: {}, VT: {}秒, 数量: {}, 轮询: {}秒, 间隔: {}ms", queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs);
         return cli.readWithPoll(queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs, filter);
     }
 
@@ -166,7 +165,7 @@ public class PgMqService {
     // ==================== 队列管理 ====================
 
     @SneakyThrows
-    public void create(String queue){
+    public void create(String queue) {
         log.info("创建队列: {}", queue);
         cli.create(queue);
     }
@@ -178,7 +177,7 @@ public class PgMqService {
     }
 
     @SneakyThrows
-    public boolean drop(String queue){
+    public boolean drop(String queue) {
         log.info("删除队列: {}", queue);
         return cli.drop(queue);
     }
@@ -206,64 +205,13 @@ public class PgMqService {
 
     // ==================== 便捷方法 ====================
 
-    public <T> Optional<T> sendAndConsume(String queue, Json message, Function<MessageRecord, T> processor) throws SQLException {
-        List<Long> ids = send(queue, message);
-        if (ids.isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<MessageRecord> records = read(queue, 30, 1, null);
-        if (records.isEmpty()) {
-            return Optional.empty();
-        }
-
-        MessageRecord record = records.getFirst();
-        T result = processor.apply(record);
-        delete(queue, record.msgId());
-
-        return Optional.of(result);
-    }
-
-    public void consumeForever(String queue, Function<MessageRecord, Boolean> processor,
-                                int pollSeconds, int visibilityTimeout) throws SQLException {
-        log.info("启动消费者: 队列={}, 轮询={}秒, VT={}秒", queue, pollSeconds, visibilityTimeout);
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 1, pollSeconds, 1000, null);
-                for (MessageRecord msg : messages) {
-                    try {
-                        Boolean success = processor.apply(msg);
-                        if (Boolean.TRUE.equals(success)) {
-                            delete(queue, msg.msgId());
-                            log.debug("消息消费成功: msgId={}", msg.msgId());
-                        } else {
-                            log.warn("消息处理失败，将重试: msgId={}", msg.msgId());
-                        }
-                    } catch (Exception e) {
-                        log.error("消息处理异常: msgId={}, error={}", msg.msgId(), e.getMessage());
-                    }
-                }
-            } catch (SQLException e) {
-                log.error("读取消息异常: {}", e.getMessage());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        }
-        log.info("消费者已停止: {}", queue);
-    }
-
     /**
      * 单次消费 - 使用阻塞式 poll 减少空查询
      * <p>使用 readWithPoll 阻塞等待消息，避免频繁空查询数据库
      */
-    public <T> void consumeOnce(String queue, T methodInfo, int visibilityTimeout, int batchSize,
-                                 BiFunction<T, Json, Boolean> processor) throws SQLException {
-        // 使用 poll 模式阻塞等待消息，超时时间 5 秒，批量读取
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, batchSize, 5, 1000, null);
+    public <T> void consumeOnce(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, Json, Boolean> processor) throws SQLException {
+        // 使用 poll 模式阻塞等待消息，超时时间 5 秒
+        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
 
         if (messages.isEmpty()) {
             return; // poll 超时，直接返回，外层循环会继续调用
@@ -279,8 +227,7 @@ public class PgMqService {
                     log.warn("消息处理失败，将重试: queue={}, msgId={}", queue, msg.msgId());
                 }
             } catch (Exception e) {
-                log.error("消息处理异常: queue={}, msgId={}, error={}",
-                    queue, msg.msgId(), e.getMessage());
+                log.error("消息处理异常: queue={}, msgId={}, error={}", queue, msg.msgId(), e.getMessage());
             }
         }
     }
@@ -288,46 +235,32 @@ public class PgMqService {
     /**
      * 消息处理结果
      */
+    @Getter
+    @RequiredArgsConstructor
     public static class MessageProcessResult {
         private final boolean success;
         private final boolean moveToDlq;
         private final int retryCount;
         private final int maxRetry;
         private final String errorMessage;
-        
-        private MessageProcessResult(boolean success, boolean moveToDlq, 
-                                    int retryCount, int maxRetry, String errorMessage) {
-            this.success = success;
-            this.moveToDlq = moveToDlq;
-            this.retryCount = retryCount;
-            this.maxRetry = maxRetry;
-            this.errorMessage = errorMessage;
-        }
-        
+
         public static MessageProcessResult success() {
             return new MessageProcessResult(true, false, 0, 0, null);
         }
-        
+
         public static MessageProcessResult failure(int retryCount, int maxRetry, String errorMessage) {
             boolean moveToDlq = retryCount >= maxRetry;
             return new MessageProcessResult(false, moveToDlq, retryCount, maxRetry, errorMessage);
         }
-        
-        public boolean isSuccess() { return success; }
-        public boolean isMoveToDlq() { return moveToDlq; }
-        public int getRetryCount() { return retryCount; }
-        public int getMaxRetry() { return maxRetry; }
-        public String getErrorMessage() { return errorMessage; }
     }
-    
+
     /**
      * 重试感知的单次消费 - 支持重试计数和 DLQ
      * <p>提供完整的消息信息，包括 headers，用于重试控制
      */
-    public <T> void consumeOnceWithRetry(String queue, T methodInfo, int visibilityTimeout, int batchSize,
-                                          BiFunction<T, MessageRecord, MessageProcessResult> processor) throws SQLException {
-        // 使用 poll 模式阻塞等待消息，超时时间 5 秒，批量读取
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, batchSize, 5, 1000, null);
+    public <T> void consumeOnceWithRetry(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, MessageRecord, MessageProcessResult> processor) throws SQLException {
+        // 使用 poll 模式阻塞等待消息，超时时间 5 秒
+        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
 
         if (messages.isEmpty()) {
             return; // poll 超时，直接返回，外层循环会继续调用
@@ -336,7 +269,7 @@ public class PgMqService {
         for (MessageRecord msg : messages) {
             try {
                 MessageProcessResult result = processor.apply(methodInfo, msg);
-                
+
                 if (result.isSuccess()) {
                     // 处理成功，删除消息
                     delete(queue, msg.msgId());
@@ -345,8 +278,7 @@ public class PgMqService {
                     // 超过最大重试次数，归档到 DLQ
                     boolean archived = archive(queue, msg.msgId());
                     if (archived) {
-                        log.warn("消息超过最大重试次数，已归档到 DLQ: queue={}, msgId={}, retryCount={}/{}",
-                                queue, msg.msgId(), result.getRetryCount(), result.getMaxRetry());
+                        log.warn("消息超过最大重试次数，已归档到 DLQ: queue={}, msgId={}, retryCount={}/{}", queue, msg.msgId(), result.getRetryCount(), result.getMaxRetry());
                     } else {
                         // 归档失败，尝试删除
                         delete(queue, msg.msgId());
@@ -354,12 +286,10 @@ public class PgMqService {
                     }
                 } else {
                     // 处理失败但未超过重试次数，等待重试
-                    log.warn("消息处理失败，将重试: queue={}, msgId={}, retryCount={}/{}",
-                            queue, msg.msgId(), result.getRetryCount(), result.getMaxRetry());
+                    log.warn("消息处理失败，将重试: queue={}, msgId={}, retryCount={}/{}", queue, msg.msgId(), result.getRetryCount(), result.getMaxRetry());
                 }
             } catch (Exception e) {
-                log.error("消息处理异常: queue={}, msgId={}, error={}",
-                    queue, msg.msgId(), e.getMessage());
+                log.error("消息处理异常: queue={}, msgId={}, error={}", queue, msg.msgId(), e.getMessage());
             }
         }
     }
