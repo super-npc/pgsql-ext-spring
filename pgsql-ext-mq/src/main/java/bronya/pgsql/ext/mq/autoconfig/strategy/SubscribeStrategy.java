@@ -1,7 +1,7 @@
 package bronya.pgsql.ext.mq.autoconfig.strategy;
 
 import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
-import bronya.pgsql.ext.mq.autoconfig.PgMqBeanPostProcessor.ListenerMethodInfo;
+import bronya.pgsql.ext.mq.consumer.ListenerMethodInfo;
 
 import java.util.List;
 

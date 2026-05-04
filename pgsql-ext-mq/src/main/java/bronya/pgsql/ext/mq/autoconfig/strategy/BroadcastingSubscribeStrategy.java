@@ -1,9 +1,9 @@
 package bronya.pgsql.ext.mq.autoconfig.strategy;
 
+import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
+import bronya.pgsql.ext.mq.consumer.ListenerMethodInfo;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.v7.core.text.StrUtil;
-import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
-import bronya.pgsql.ext.mq.autoconfig.PgMqBeanPostProcessor.ListenerMethodInfo;
 
 import java.util.List;
 

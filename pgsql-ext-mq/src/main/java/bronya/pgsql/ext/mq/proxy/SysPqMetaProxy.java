@@ -1,29 +1,32 @@
 package bronya.pgsql.ext.mq.proxy;
 
 import bronya.admin.module.db.amis.util.BronyaAdminBaseAmisUtil;
+import bronya.core.base.dto.DataProxy;
 import bronya.pgsql.ext.mq.annotation.PgMqDeadLetterConfig;
 import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
 import bronya.pgsql.ext.mq.autoconfig.PgMqBeanPostProcessor;
-import bronya.pgsql.ext.mq.autoconfig.PgMqBeanPostProcessor.ListenerMethodInfo;
-import bronya.shared.util.Md;
-import cn.hutool.v7.core.date.DateUtil;
-import cn.hutool.v7.core.text.StrUtil;
-import cn.hutool.v7.core.text.split.SplitUtil;
-import com.google.common.collect.TreeBasedTable;
-import net.steppschuh.markdowngenerator.text.quote.Quote;
+import bronya.pgsql.ext.mq.constant.PgmqFinalConstant;
+import bronya.pgsql.ext.mq.consumer.ListenerMethodInfo;
+import bronya.pgsql.ext.mq.consumer.QueueConsumer;
 import bronya.pgsql.ext.mq.domain.SysPqMeta;
 import bronya.pgsql.ext.mq.domain.SysPqMeta.SysPqMetaExt;
 import bronya.pgsql.ext.mq.repository.SysPqMetaRepository;
-import bronya.core.base.dto.DataProxy;
+import bronya.pgsql.ext.mq.service.PgMqService;
+import bronya.shared.util.Md;
+import cn.hutool.v7.core.bean.BeanUtil;
+import cn.hutool.v7.core.date.DateUtil;
+import cn.hutool.v7.core.text.StrUtil;
+import cn.hutool.v7.core.text.split.SplitUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import cn.hutool.v7.core.bean.BeanUtil;
-import bronya.pgsql.ext.mq.service.PgMqService;
+import net.steppschuh.markdowngenerator.text.quote.Quote;
 import org.andreaesposito.pgmq.jdbc.client.MetricResult;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -47,9 +50,11 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
     }
 
     private String getQueueInfo(SysPqMeta sysPqMeta){
-        TreeBasedTable<SubscribeType, String, List<ListenerMethodInfo>> listenerTable = pgMqBeanPostProcessor.getListenerTable();
-        List<ListenerMethodInfo> allListeners = listenerTable.values().stream().flatMap(List::stream).toList();
-        List<ListenerMethodInfo> queues = allListeners.stream().filter(a -> a.queueName().equalsIgnoreCase(sysPqMeta.getQueueName())).toList();
+        List<ListenerMethodInfo> queues = PgmqFinalConstant.consumerTable.values().stream()
+                .flatMap(List::stream)
+                .map(QueueConsumer::getMethodInfo)
+                .filter(info -> info != null && info.queueName().equalsIgnoreCase(sysPqMeta.getQueueName()))
+                .toList();
         Md md = new Md();
         md.appendLn(new Quote("监听者实现数:"+queues.size()));
         for (ListenerMethodInfo queue : queues) {
