@@ -211,7 +211,7 @@ public class PgMqService {
      */
     public <T> void consumeOnce(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, Json, Boolean> processor) throws SQLException {
         // 使用 poll 模式阻塞等待消息，超时时间 5 秒
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
+        List<MessageRecord> messages = pop(queue).map(List::of).orElseGet(List::of);
 
         if (messages.isEmpty()) {
             return; // poll 超时，直接返回，外层循环会继续调用
@@ -260,7 +260,8 @@ public class PgMqService {
      */
     public <T> void consumeOnceWithRetry(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, MessageRecord, MessageProcessResult> processor) throws SQLException {
         // 使用 poll 模式阻塞等待消息，超时时间 5 秒
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
+//        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
+        List<MessageRecord> messages = pop(queue).map(List::of).orElseGet(List::of);
 
         if (messages.isEmpty()) {
             return; // poll 超时，直接返回，外层循环会继续调用
