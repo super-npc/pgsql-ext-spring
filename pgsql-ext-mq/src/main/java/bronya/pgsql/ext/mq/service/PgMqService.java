@@ -207,16 +207,14 @@ public class PgMqService {
     // ==================== 便捷方法 ====================
 
     /**
-     * 单次消费 - 使用阻塞式 poll 减少空查询
-     * <p>使用 readWithPoll 阻塞等待消息，避免频繁空查询数据库
+     * 单次消费 - 使用非阻塞 read 配合应用层休眠，避免占用数据库长连接
      */
-    public <T> void consumeOnce(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, Json, Boolean> processor) throws SQLException {
-        // 使用 poll 模式阻塞等待消息，超时时间 5 秒
-//        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, batchSize, 5, 1000, null);
+    public <T> boolean consumeOnce(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, Json, Boolean> processor) throws SQLException {
+        // 使用非阻塞的 read，拿不到消息立刻返回空列表，迅速释放数据库连接
+        List<MessageRecord> messages = read(queue, visibilityTimeout, batchSize, null);
 
         if (messages.isEmpty()) {
-            return; // poll 超时，直接返回，外层循环会继续调用
+            return false; // 返回 false 表示没有消息
         }
 
         for (MessageRecord msg : messages) {
@@ -237,6 +235,7 @@ public class PgMqService {
                 }
             }
         }
+        return true; // 返回 true 表示处理了消息
     }
 
     /**
@@ -265,12 +264,12 @@ public class PgMqService {
      * 重试感知的单次消费 - 支持重试计数和 DLQ
      * <p>提供完整的消息信息，包括 headers，用于重试控制
      */
-    public <T> void consumeOnceWithRetry(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, MessageRecord, MessageProcessResult> processor) throws SQLException {
-        // 使用 poll 模式阻塞等待消息，超时时间 5 秒
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, batchSize, 5, 1000, null);
+    public <T> boolean consumeOnceWithRetry(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, MessageRecord, MessageProcessResult> processor) throws SQLException {
+        // 使用非阻塞的 read，拿不到消息立刻返回空列表，迅速释放数据库连接
+        List<MessageRecord> messages = read(queue, visibilityTimeout, batchSize, null);
 
         if (messages.isEmpty()) {
-            return; // poll 超时，直接返回，外层循环会继续调用
+            return false; // 返回 false 表示没有消息
         }
 
         for (MessageRecord msg : messages) {
@@ -304,5 +303,6 @@ public class PgMqService {
                 }
             }
         }
+        return true; // 返回 true 表示处理了消息
     }
 }

@@ -78,14 +78,33 @@ public class QueueConsumer {
             this.ensureQueueCreated(queueName);
         }
 
+        // 初始休眠间隔（毫秒）
+        long sleepMs = 100;
+        final long MAX_SLEEP_MS = 5000; // 最大休眠 5 秒
+
         while (true) {
             try {
+                boolean hasMessage;
                 if (methodInfo.enableDlq()) {
                     // 使用重试感知的消费方法
-                    getPgMqService().consumeOnceWithRetry(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessageWithRetry);
+                    hasMessage = getPgMqService().consumeOnceWithRetry(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessageWithRetry);
                 } else {
                     // 使用原始的消费方法
-                    getPgMqService().consumeOnce(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessage);
+                    hasMessage = getPgMqService().consumeOnce(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessage);
+                }
+
+                if (hasMessage) {
+                    // 如果有消息处理，重置休眠时间，以最高速度处理积压消息
+                    sleepMs = 100;
+                } else {
+                    // 如果没有消息，应用层休眠，并逐步增加休眠时间（退避算法）
+                    try {
+                        Thread.sleep(sleepMs);
+                        sleepMs = Math.min(sleepMs * 2, MAX_SLEEP_MS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 log.error("消费者异常: queue={}, consumer={}, error={}", queueName, consumerIndex, e.getMessage());

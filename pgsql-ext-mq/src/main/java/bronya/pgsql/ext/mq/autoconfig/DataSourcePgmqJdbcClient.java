@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.andreaesposito.pgmq.jdbc.client.*;
 
 import javax.sql.DataSource;
-import jakarta.annotation.PreDestroy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
@@ -23,34 +22,23 @@ import java.util.Optional;
 public class DataSourcePgmqJdbcClient extends PgmqJdbcClient {
 
     private final DataSource dataSource;
-    private final Connection bootstrapConnection;
 
     /**
-     * 使用临时连接初始化父类（不会被实际使用）
+     * 使用临时连接初始化父类，初始化后立即释放，避免长时间占用物理连接。
      */
     public DataSourcePgmqJdbcClient(DataSource dataSource) throws SQLException {
-        this(getTempConnection(dataSource), dataSource);
-    }
-
-    private DataSourcePgmqJdbcClient(Connection bootstrapConnection, DataSource dataSource) throws SQLException {
-        super(bootstrapConnection);
-        this.bootstrapConnection = bootstrapConnection;
+        super(getTempAndCloseConnection(dataSource));
         this.dataSource = dataSource;
     }
 
-    private static Connection getTempConnection(DataSource ds) throws SQLException {
-        return ds.getConnection();
-    }
-
-    @PreDestroy
-    public void closeBootstrapConnection() {
-        try {
-            if (bootstrapConnection != null && !bootstrapConnection.isClosed()) {
-                bootstrapConnection.close();
-            }
-        } catch (Exception e) {
-            log.warn("关闭 bootstrapConnection 失败: {}", e.getMessage());
-        }
+    private static Connection getTempAndCloseConnection(DataSource ds) throws SQLException {
+        Connection conn = ds.getConnection();
+        // 因为 PgmqJdbcClient 构造器内部只会拿来做一些基础校验（如果有的话），
+        // 实际上 DataSourcePgmqJdbcClient 已经重写了所有方法，后续不会再用这个 connection，
+        // 所以我们拿到后直接关闭它，返回一个已经 closed 的 connection 给父类。
+        // 这就彻底切断了物理连接被永久持有的情况。
+        conn.close();
+        return conn;
     }
 
     /**
