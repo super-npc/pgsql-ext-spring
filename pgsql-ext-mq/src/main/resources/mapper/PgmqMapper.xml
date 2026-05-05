@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bronya.pgsql.ext.mq.mapper.PgmqMapper">
+    <!-- Sending Messages -->
+    <select id="send" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb)
+    </select>
+
+    <select id="sendWithDelay" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb, delay => #{delay})
+    </select>
+
+    <select id="sendWithTimestamp" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb, delay => #{delay})
+    </select>
+
+    <select id="sendWithHeaders" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb, headers => #{headers.value}::jsonb)
+    </select>
+
+    <select id="sendWithHeadersAndDelay" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb, headers => #{headers.value}::jsonb, delay => #{delay})
+    </select>
+
+    <select id="sendWithHeadersAndTimestamp" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb, headers => #{headers.value}::jsonb, delay => #{delay})
+    </select>
+
+    <select id="sendBatch" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send_batch(queue_name => #{queueName}, msgs => ARRAY[
+        <foreach collection="msgs" item="msg" separator=",">#{msg.value}::jsonb</foreach>
+        ]::jsonb[])
+    </select>
+
+    <select id="sendBatchWithDelay" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send_batch(queue_name => #{queueName}, msgs => ARRAY[
+        <foreach collection="msgs" item="msg" separator=",">#{msg.value}::jsonb</foreach>
+        ]::jsonb[], delay => #{delay})
+    </select>
+
+    <select id="sendBatchWithTimestamp" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send_batch(queue_name => #{queueName}, msgs => ARRAY[
+        <foreach collection="msgs" item="msg" separator=",">#{msg.value}::jsonb</foreach>
+        ]::jsonb[], delay => #{delay})
+    </select>
+
+    <select id="sendBatchWithHeaders" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send_batch(queue_name => #{queueName}, msgs => ARRAY[
+        <foreach collection="msgs" item="msg" separator=",">#{msg.value}::jsonb</foreach>
+        ]::jsonb[], headers => ARRAY[
+        <foreach collection="headers" item="header" separator=",">#{header.value}::jsonb</foreach>
+        ]::jsonb[])
+    </select>
+
+    <select id="sendBatchWithHeadersAndDelay" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send_batch(queue_name => #{queueName}, msgs => ARRAY[
+        <foreach collection="msgs" item="msg" separator=",">#{msg.value}::jsonb</foreach>
+        ]::jsonb[], headers => ARRAY[
+        <foreach collection="headers" item="header" separator=",">#{header.value}::jsonb</foreach>
+        ]::jsonb[], delay => #{delay})
+    </select>
+
+    <select id="sendBatchWithHeadersAndTimestamp" resultType="java.lang.Long">
+        SELECT * FROM pgmq.send_batch(queue_name => #{queueName}, msgs => ARRAY[
+        <foreach collection="msgs" item="msg" separator=",">#{msg.value}::jsonb</foreach>
+        ]::jsonb[], headers => ARRAY[
+        <foreach collection="headers" item="header" separator=",">#{header.value}::jsonb</foreach>
+        ]::jsonb[], delay => #{delay})
+    </select>
+
+    <!-- Reading Messages -->
+    <select id="read" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+        SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read(
+        queue_name => #{queueName}, vt => #{vt}, qty => #{qty}
+        <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
+        )
+    </select>
+
+    <select id="readWithPollFull" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+        SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read_with_poll(
+        queue_name => #{queueName}, vt => #{vt}, qty => #{qty}, max_poll_seconds => #{maxPollSeconds}, poll_interval_ms => #{pollIntervalMs}
+        <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
+        )
+    </select>
+
+    <select id="readWithPoll" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+        SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read_with_poll(
+        queue_name => #{queueName}, vt => #{vt}, qty => #{qty}
+        <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
+        )
+    </select>
+
+    <select id="pop" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+        SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.pop(queue_name => #{queueName})
+    </select>
+
+    <!-- Deleting/Archiving Messages -->
+    <select id="deleteMessage" resultType="boolean">
+        SELECT pgmq.delete(queue_name => #{queueName}, msg_id => #{msgId})
+    </select>
+
+    <select id="deleteBatch" resultType="java.lang.Long">
+        SELECT pgmq.delete(queue_name => #{queueName}, msg_ids => ARRAY[
+        <foreach collection="msgIds" item="msgId" separator=",">#{msgId}</foreach>
+        ]::bigint[])
+    </select>
+
+    <select id="purge" resultType="java.lang.Long">
+        SELECT pgmq.purge_queue(queue_name => #{queueName})
+    </select>
+
+    <select id="archiveMessage" resultType="boolean">
+        SELECT pgmq.archive(queue_name => #{queueName}, msg_id => #{msgId})
+    </select>
+
+    <select id="archiveBatch" resultType="java.lang.Long">
+        SELECT * FROM pgmq.archive(queue_name => #{queueName}, msg_ids => ARRAY[
+        <foreach collection="msgIds" item="msgId" separator=",">#{msgId}</foreach>
+        ]::bigint[])
+    </select>
+
+    <!-- Queue Management -->
+    <select id="create">
+        SELECT pgmq.create(queue_name => #{queueName})
+    </select>
+
+    <select id="createUnlogged">
+        SELECT pgmq.create_unlogged(queue_name => #{queueName})
+    </select>
+
+    <select id="drop" resultType="boolean">
+        SELECT pgmq.drop_queue(queue_name => #{queueName})
+    </select>
+
+    <!-- Utilities -->
+    <select id="listQueues" resultType="org.andreaesposito.pgmq.jdbc.client.QueueRecord">
+        SELECT * FROM pgmq.list_queues()
+    </select>
+
+    <select id="metrics" resultType="org.andreaesposito.pgmq.jdbc.client.MetricResult">
+        SELECT * FROM pgmq.metrics(queue_name => #{queueName})
+    </select>
+
+    <select id="metricsAll" resultType="org.andreaesposito.pgmq.jdbc.client.MetricResult">
+        SELECT * FROM pgmq.metrics_all()
+    </select>
+
+    <select id="setVisibilityTimeout" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+        SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.set_vt(queue_name => #{queueName}, msg_id => #{msgId}, vt => #{vt})
+    </select>
+</mapper>

@@ -1,5 +1,6 @@
 package bronya.pgsql.ext.mq.service;
 
+import bronya.pgsql.ext.mq.mapper.PgmqMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -48,119 +49,119 @@ import java.util.function.BiFunction;
 @Service
 @RequiredArgsConstructor
 public class PgMqService {
-    private final PgmqJdbcClient cli;
+    private final PgmqMapper mapper;
 
     // ==================== 消息发送 ====================
 
     public List<Long> send(String queue, Json message) throws SQLException {
         log.debug("发送消息到队列: {}, 内容: {}", queue, message);
-        return cli.send(queue, message);
+        return mapper.send(queue, message);
     }
 
     public List<Long> send(String queue, Json message, int delaySeconds) throws SQLException {
         log.debug("发送延迟消息到队列: {}, 延迟: {}秒, 内容: {}", queue, delaySeconds, message);
-        return cli.send(queue, message, delaySeconds);
+        return mapper.sendWithDelay(queue, message, delaySeconds);
     }
 
     public List<Long> send(String queue, Json message, Json headers) throws SQLException {
         log.debug("发送带Headers消息到队列: {}, Headers: {}, 内容: {}", queue, headers, message);
-        return cli.send(queue, message, headers);
+        return mapper.sendWithHeaders(queue, message, headers);
     }
 
     public List<Long> send(String queue, Json message, OffsetDateTime delayAt) throws SQLException {
         log.debug("发送定时延迟消息到队列: {}, 延迟至: {}, 内容: {}", queue, delayAt, message);
-        return cli.send(queue, message, delayAt);
+        return mapper.sendWithTimestamp(queue, message, delayAt);
     }
 
     public List<Long> send(String queue, Json message, Json headers, int delaySeconds) throws SQLException {
         log.debug("发送带Headers延迟消息到队列: {}, Headers: {}, 延迟: {}秒, 内容: {}", queue, headers, delaySeconds, message);
-        return cli.send(queue, message, headers, delaySeconds);
+        return mapper.sendWithHeadersAndDelay(queue, message, headers, delaySeconds);
     }
 
     public List<Long> send(String queue, Json message, Json headers, OffsetDateTime delayAt) throws SQLException {
         log.debug("发送带Headers定时延迟消息到队列: {}, Headers: {}, 延迟至: {}, 内容: {}", queue, headers, delayAt, message);
-        return cli.send(queue, message, headers, delayAt);
+        return mapper.sendWithHeadersAndTimestamp(queue, message, headers, delayAt);
     }
 
     public List<Long> sendBatch(String queue, Json[] messages) throws SQLException {
         log.debug("批量发送{}条消息到队列（无Headers）: {}", messages.length, queue);
-        return cli.sendBatch(queue, messages);
+        return mapper.sendBatch(queue, messages);
     }
 
     public List<Long> sendBatch(String queue, Json[] messages, int delaySeconds) throws SQLException {
         log.debug("批量发送{}条延迟消息到队列: {}, 延迟: {}秒", messages.length, queue, delaySeconds);
-        return cli.sendBatch(queue, messages, delaySeconds);
+        return mapper.sendBatchWithDelay(queue, messages, delaySeconds);
     }
 
     public List<Long> sendBatch(String queue, Json[] messages, OffsetDateTime delayAt) throws SQLException {
         log.debug("批量发送{}条定时延迟消息到队列: {}, 延迟至: {}", messages.length, queue, delayAt);
-        return cli.sendBatch(queue, messages, delayAt);
+        return mapper.sendBatchWithTimestamp(queue, messages, delayAt);
     }
 
     public List<Long> sendBatch(String queue, Json[] messages, Json[] headers) throws SQLException {
         log.debug("批量发送{}条消息到队列: {}", messages.length, queue);
-        return cli.sendBatch(queue, messages, headers);
+        return mapper.sendBatchWithHeaders(queue, messages, headers);
     }
 
     public List<Long> sendBatch(String queue, Json[] messages, Json[] headers, int delaySeconds) throws SQLException {
         log.debug("批量发送{}条带Headers延迟消息到队列: {}, 延迟: {}秒", messages.length, queue, delaySeconds);
-        return cli.sendBatch(queue, messages, headers, delaySeconds);
+        return mapper.sendBatchWithHeadersAndDelay(queue, messages, headers, delaySeconds);
     }
 
     public List<Long> sendBatch(String queue, Json[] messages, Json[] headers, OffsetDateTime delayAt) throws SQLException {
         log.debug("批量发送{}条带Headers定时延迟消息到队列: {}, 延迟至: {}", messages.length, queue, delayAt);
-        return cli.sendBatch(queue, messages, headers, delayAt);
+        return mapper.sendBatchWithHeadersAndTimestamp(queue, messages, headers, delayAt);
     }
 
     // ==================== 消息读取 ====================
 
     public List<MessageRecord> read(String queue, int visibilityTimeoutSeconds, int quantity, Json filter) throws SQLException {
         log.debug("读取队列: {}, VT: {}秒, 数量: {}", queue, visibilityTimeoutSeconds, quantity);
-        return cli.read(queue, visibilityTimeoutSeconds, quantity, filter);
+        return mapper.read(queue, visibilityTimeoutSeconds, quantity, filter);
     }
 
 //    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int pollSeconds, Json filter) throws SQLException {
 //        log.debug("轮询读取队列: {}, VT: {}秒, 轮询: {}秒", queue, visibilityTimeoutSeconds, pollSeconds);
-//        return cli.readWithPoll(queue, visibilityTimeoutSeconds, pollSeconds, filter);
+//        return mapper.readWithPoll(queue, visibilityTimeoutSeconds, pollSeconds, filter);
 //    }
 
     public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int quantity,
                                              int pollSeconds, int pollIntervalMs, Json filter) throws SQLException {
         log.debug("高级轮询读取队列: {}, VT: {}秒, 数量: {}, 轮询: {}秒, 间隔: {}ms",
                 queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs);
-        return cli.readWithPoll(queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs, filter);
+        return mapper.readWithPollFull(queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs, filter);
     }
 
     public Optional<MessageRecord> pop(String queue) throws SQLException {
         log.debug("弹出队列消息: {}", queue);
-        return cli.pop(queue);
+        return mapper.pop(queue);
     }
 
     // ==================== 消息确认 ====================
 
     public List<Long> delete(String queue, long... messageIds) throws SQLException {
         log.debug("删除队列: {}, 消息IDs: {}", queue, java.util.Arrays.toString(messageIds));
-        return cli.delete(queue, messageIds);
+        return mapper.deleteBatch(queue, messageIds);
     }
 
     public boolean delete(String queue, long messageId) throws SQLException {
         log.debug("删除单条消息: 队列={}, 消息ID={}", queue, messageId);
-        return cli.delete(queue, messageId);
+        return mapper.deleteMessage(queue, messageId);
     }
 
     public boolean archive(String queue, long messageId) throws SQLException {
         log.debug("归档消息: 队列={}, 消息ID={}", queue, messageId);
-        return cli.archive(queue, messageId);
+        return mapper.archiveMessage(queue, messageId);
     }
 
     public List<Long> archive(String queue, long... messageIds) throws SQLException {
         log.debug("批量归档消息: 队列={}, 消息IDs: {}", queue, java.util.Arrays.toString(messageIds));
-        return cli.archive(queue, messageIds);
+        return mapper.archiveBatch(queue, messageIds);
     }
 
     public Optional<MessageRecord> setVisibilityTimeout(String queue, long messageId, int visibilityTimeoutSeconds) throws SQLException {
         log.debug("设置消息可见性超时: 队列={}, 消息ID={}, VT={}秒", queue, messageId, visibilityTimeoutSeconds);
-        return cli.setVisibilityTimeout(queue, messageId, visibilityTimeoutSeconds);
+        return mapper.setVisibilityTimeout(queue, messageId, visibilityTimeoutSeconds);
     }
 
     // ==================== 队列管理 ====================
@@ -168,40 +169,40 @@ public class PgMqService {
     @SneakyThrows
     public void create(String queue) {
         log.info("创建队列: {}", queue);
-        cli.create(queue);
+        mapper.create(queue);
     }
 
     @SneakyThrows
     public void createUnlogged(String queue) {
         log.info("创建非持久化队列: {}", queue);
-        cli.createUnlogged(queue);
+        mapper.createUnlogged(queue);
     }
 
     @SneakyThrows
     public boolean drop(String queue) {
         log.info("删除队列: {}", queue);
-        return cli.drop(queue);
+        return mapper.drop(queue);
     }
 
     @SneakyThrows
     public long purge(String queue) {
         log.info("清空队列: {}", queue);
-        return cli.purge(queue);
+        return mapper.purge(queue);
     }
 
     public List<QueueRecord> listQueues() throws SQLException {
         log.debug("列出所有队列");
-        return cli.listQueues();
+        return mapper.listQueues();
     }
 
     public MetricResult metrics(String queue) throws SQLException {
         log.debug("获取队列指标: {}", queue);
-        return cli.metrics(queue);
+        return mapper.metrics(queue);
     }
 
     public List<MetricResult> metricsAll() throws SQLException {
         log.debug("获取所有队列指标");
-        return cli.metricsAll();
+        return mapper.metricsAll();
     }
 
     // ==================== 便捷方法 ====================
