@@ -32,7 +32,14 @@ public class QueueConsumer {
     private ListenerMethodInfo methodInfo;
     private boolean needCreateQueue;
 
-    private final PgMqService pgMqService = SpringUtil.getBean(PgMqService.class);
+    private PgMqService pgMqService;
+
+    private PgMqService getPgMqService() {
+        if (pgMqService == null) {
+            pgMqService = SpringUtil.getBean(PgMqService.class);
+        }
+        return pgMqService;
+    }
 
     public String getMsgType() {
         return annotation.bindMsgDto().getName();
@@ -78,10 +85,10 @@ public class QueueConsumer {
             try {
                 if (methodInfo.enableDlq()) {
                     // 使用重试感知的消费方法
-                    pgMqService.consumeOnceWithRetry(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessageWithRetry);
+                    getPgMqService().consumeOnceWithRetry(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessageWithRetry);
                 } else {
                     // 使用原始的消费方法
-                    pgMqService.consumeOnce(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), SysPgMqUtil::processMessage);
+                    getPgMqService().consumeOnce(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), SysPgMqUtil::processMessage);
                 }
             } catch (SQLException e) {
                 log.error("消费者异常: queue={}, consumer={}, error={}", queueName, consumerIndex, e.getMessage());
@@ -181,7 +188,7 @@ public class QueueConsumer {
     }
 
     private void ensureQueueCreated(String queueName) {
-        pgMqService.create(queueName);
+        getPgMqService().create(queueName);
         log.info("创建队列成功: {}", queueName);
     }
 }

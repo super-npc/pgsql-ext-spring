@@ -13,13 +13,15 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.MethodIntrospector;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,16 +44,25 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
     @Override
     public Object postProcessAfterInitialization(@NotNull Object bean, @NotNull String beanName) {
         Class<?> clazz = ClassUtils.getUserClass(bean); // 获取实际类，避免代理类
-        for (Method method : ReflectionUtils.getAllDeclaredMethods(clazz)) {
-            if (method.isBridge() || method.isSynthetic()) {
-                continue;
-            }
-            PgMqListener annotation = AnnotationUtils.findAnnotation(method, PgMqListener.class);
-            if (annotation != null) {
-                // 应该是注册对象
+        String packageName = clazz.getPackageName();
+
+        // 过滤掉基础包，避免扫描大量非业务类，防止 AnnotationUtils 缓存撑爆内存
+        if (packageName.startsWith("java.") || packageName.startsWith("javax.") ||
+            packageName.startsWith("org.springframework.") || packageName.startsWith("org.apache.") ||
+            packageName.startsWith("com.google.") || packageName.startsWith("cn.hutool.") ||
+            packageName.startsWith("org.hibernate.") || packageName.startsWith("io.netty.")) {
+            return bean;
+        }
+
+        Map<Method, PgMqListener> annotatedMethods = MethodIntrospector.selectMethods(clazz,
+                (MethodIntrospector.MetadataLookup<PgMqListener>) method ->
+                        AnnotatedElementUtils.findMergedAnnotation(method, PgMqListener.class));
+
+        if (!annotatedMethods.isEmpty()) {
+            annotatedMethods.forEach((method, annotation) -> {
                 QueueConsumer queueConsumer = new QueueConsumer(clazz, beanName, method, annotation);
                 queueConsumer.registerListener();
-            }
+            });
         }
         return bean;
     }
@@ -119,7 +130,7 @@ public class PgMqBeanPostProcessor implements BeanPostProcessor, ApplicationList
         List<QueueConsumer> consumers = PgmqFinalConstant.consumerTable.get(type, msgType);
         return consumers != null ? consumers.stream()
                 .map(QueueConsumer::getMethodInfo)
-                .filter(info -> info != null)
+                .filter(Objects::nonNull)
                 .toList() : List.of();
     }
 
