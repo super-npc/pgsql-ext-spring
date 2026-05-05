@@ -33,21 +33,12 @@ public class QueueConsumer {
     private ListenerMethodInfo methodInfo;
     private boolean needCreateQueue;
 
-    private PgMqService pgMqService;
-    private Object beanInstance;
-
     private PgMqService getPgMqService() {
-        if (pgMqService == null) {
-            pgMqService = SpringUtil.getBean(PgMqService.class);
-        }
-        return pgMqService;
+        return SpringUtil.getBean(PgMqService.class);
     }
 
     private Object getBeanInstance() {
-        if (beanInstance == null) {
-            beanInstance = SpringUtil.getBean(beanName);
-        }
-        return beanInstance;
+        return SpringUtil.getBean(beanName);
     }
 
     public SubscribeType getSubscribeType() {
