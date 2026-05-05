@@ -9,12 +9,12 @@ import bronya.pgsql.ext.mq.service.PgMqService.MessageProcessResult;
 import bronya.pgsql.ext.mq.util.SysPgMqUtil;
 import cn.hutool.v7.extra.spring.SpringUtil;
 import com.alibaba.fastjson2.JSON;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.andreaesposito.pgmq.jdbc.client.Json;
 
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +29,12 @@ public class QueueConsumer {
     private final Method method;
     private final PgMqListener annotation;
 
+    @Getter
     private ListenerMethodInfo methodInfo;
     private boolean needCreateQueue;
 
     private PgMqService pgMqService;
+    private Object beanInstance;
 
     private PgMqService getPgMqService() {
         if (pgMqService == null) {
@@ -41,20 +43,15 @@ public class QueueConsumer {
         return pgMqService;
     }
 
-    public String getMsgType() {
-        return annotation.bindMsgDto().getName();
+    private Object getBeanInstance() {
+        if (beanInstance == null) {
+            beanInstance = SpringUtil.getBean(beanName);
+        }
+        return beanInstance;
     }
 
     public SubscribeType getSubscribeType() {
         return annotation.subscribeType();
-    }
-
-    public ListenerMethodInfo getMethodInfo() {
-        return methodInfo;
-    }
-
-    public boolean isNeedCreateQueue() {
-        return needCreateQueue;
     }
 
     /**
@@ -88,11 +85,34 @@ public class QueueConsumer {
                     getPgMqService().consumeOnceWithRetry(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessageWithRetry);
                 } else {
                     // 使用原始的消费方法
-                    getPgMqService().consumeOnce(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), SysPgMqUtil::processMessage);
+                    getPgMqService().consumeOnce(queueName, methodInfo, methodInfo.visibilityTimeout(), methodInfo.batchSize(), this::processMessage);
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 log.error("消费者异常: queue={}, consumer={}, error={}", queueName, consumerIndex, e.getMessage());
+                try {
+                    Thread.sleep(5000); // 异常时休眠避免死循环导致 CPU 和内存飙升
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
+        }
+    }
+
+    /**
+     * 处理消息（不带重试支持）
+     */
+    private Boolean processMessage(ListenerMethodInfo methodInfo, Json messageRecord) {
+        try {
+            // 将 JSON 消息转换为 DTO 对象
+            Object dto = JSON.parseObject(messageRecord.value(), methodInfo.msgDtoClass());
+            // 直接使用当前对象的 method 和 bean 实例，避免反射查找和 SpringUtil.getBean 导致的性能和内存问题
+            method.invoke(getBeanInstance(), dto);
+            log.info("消息处理成功: 队列={}, 类={}, 方法={}", methodInfo.queueName(), methodInfo.className(), methodInfo.methodName());
+            return true;
+        } catch (Exception e) {
+            log.error("消息处理失败: 队列={}, 类={}, 方法={}, 错误={}", methodInfo.queueName(), methodInfo.className(), methodInfo.methodName(), e.getMessage(), e);
+            return false;
         }
     }
 
@@ -106,17 +126,11 @@ public class QueueConsumer {
             int retryCount = SysPgMqUtil.getRetryCountFromHeaders(headers);
             String traceId = SysPgMqUtil.getTraceIdFromHeaders(headers);
 
-            // 从 Spring 上下文获取 Bean
-            Object bean = SpringUtil.getBean(methodInfo.beanName());
-
-            // 获取方法
-            Method method = SysPgMqUtil.findMethod(bean.getClass(), methodInfo.methodName(), methodInfo.msgDtoClass());
-
             try {
                 // 将 JSON 消息转换为 DTO 对象
                 Object dto = JSON.parseObject(messageRecord.message().value(), methodInfo.msgDtoClass());
-                // 调用方法
-                method.invoke(bean, dto);
+                // 直接使用当前对象的 method 和 bean 实例
+                method.invoke(getBeanInstance(), dto);
                 log.info("消息处理成功: 队列={}, 类={}, 方法={}, traceId={}, retryCount={}", methodInfo.queueName(), methodInfo.className(), methodInfo.methodName(), traceId, retryCount);
                 return MessageProcessResult.success();
 

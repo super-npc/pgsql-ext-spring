@@ -228,6 +228,11 @@ public class PgMqService {
                 }
             } catch (Exception e) {
                 log.error("消息处理异常: queue={}, msgId={}, error={}", queue, msg.msgId(), e.getMessage());
+                try {
+                    Thread.sleep(1000); // 消息处理异常时稍作休眠，避免错误死循环过快
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }
@@ -290,6 +295,11 @@ public class PgMqService {
                 }
             } catch (Exception e) {
                 log.error("消息处理异常: queue={}, msgId={}, error={}", queue, msg.msgId(), e.getMessage());
+                try {
+                    Thread.sleep(1000); // 消息处理异常时稍作休眠，避免错误死循环过快
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }
