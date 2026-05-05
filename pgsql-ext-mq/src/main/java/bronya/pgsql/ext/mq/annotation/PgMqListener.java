@@ -28,7 +28,7 @@ public @interface PgMqListener {
     int visibilityTimeout() default 60;
 
     /** 批量拉取数量,多余的,目前没有想好怎么处理 */
-    int batchSize() default 1;
+    int batchSize() default 100;
 
     /** 死信队列配置 */
     PgMqDeadLetterConfig deadLetterConfig() default @PgMqDeadLetterConfig;

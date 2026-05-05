@@ -12,7 +12,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * PgMQ 消息队列服务
@@ -120,13 +119,15 @@ public class PgMqService {
         return cli.read(queue, visibilityTimeoutSeconds, quantity, filter);
     }
 
-    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int pollSeconds, Json filter) throws SQLException {
-        log.debug("轮询读取队列: {}, VT: {}秒, 轮询: {}秒", queue, visibilityTimeoutSeconds, pollSeconds);
-        return cli.readWithPoll(queue, visibilityTimeoutSeconds, pollSeconds, filter);
-    }
+//    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int pollSeconds, Json filter) throws SQLException {
+//        log.debug("轮询读取队列: {}, VT: {}秒, 轮询: {}秒", queue, visibilityTimeoutSeconds, pollSeconds);
+//        return cli.readWithPoll(queue, visibilityTimeoutSeconds, pollSeconds, filter);
+//    }
 
-    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int quantity, int pollSeconds, int pollIntervalMs, Json filter) throws SQLException {
-        log.debug("高级轮询读取队列: {}, VT: {}秒, 数量: {}, 轮询: {}秒, 间隔: {}ms", queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs);
+    public List<MessageRecord> readWithPoll(String queue, int visibilityTimeoutSeconds, int quantity,
+                                             int pollSeconds, int pollIntervalMs, Json filter) throws SQLException {
+        log.debug("高级轮询读取队列: {}, VT: {}秒, 数量: {}, 轮询: {}秒, 间隔: {}ms",
+                queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs);
         return cli.readWithPoll(queue, visibilityTimeoutSeconds, quantity, pollSeconds, pollIntervalMs, filter);
     }
 
@@ -211,7 +212,8 @@ public class PgMqService {
      */
     public <T> void consumeOnce(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, Json, Boolean> processor) throws SQLException {
         // 使用 poll 模式阻塞等待消息，超时时间 5 秒
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
+//        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
+        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, batchSize, 5, 1000, null);
 
         if (messages.isEmpty()) {
             return; // poll 超时，直接返回，外层循环会继续调用
@@ -265,7 +267,7 @@ public class PgMqService {
      */
     public <T> void consumeOnceWithRetry(String queue, T methodInfo, int visibilityTimeout, int batchSize, BiFunction<T, MessageRecord, MessageProcessResult> processor) throws SQLException {
         // 使用 poll 模式阻塞等待消息，超时时间 5 秒
-        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, 5, null);
+        List<MessageRecord> messages = readWithPoll(queue, visibilityTimeout, batchSize, 5, 1000, null);
 
         if (messages.isEmpty()) {
             return; // poll 超时，直接返回，外层循环会继续调用
