@@ -12,7 +12,7 @@ import com.alibaba.fastjson2.JSON;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.andreaesposito.pgmq.jdbc.client.Json;
+import bronya.pgsql.ext.mq.domain.Json;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class QueueConsumer {
     /**
      * 处理消息（带重试支持）- 通过反射调用实际的监听方法
      */
-    private MessageProcessResult processMessageWithRetry(ListenerMethodInfo methodInfo, org.andreaesposito.pgmq.jdbc.client.MessageRecord messageRecord) {
+    private MessageProcessResult processMessageWithRetry(ListenerMethodInfo methodInfo, bronya.pgsql.ext.mq.domain.MessageRecord messageRecord) {
         try {
             // 尝试获取消息的 headers，解析重试次数
             Json headers = SysPgMqUtil.extractHeadersFromMessageRecord(messageRecord);

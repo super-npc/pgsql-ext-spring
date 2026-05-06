@@ -2,10 +2,10 @@ package bronya.pgsql.ext.mq.mapper;
 
 import bronya.pgsql.ext.mq.domain.SysPqMeta;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.andreaesposito.pgmq.jdbc.client.Json;
-import org.andreaesposito.pgmq.jdbc.client.MessageRecord;
-import org.andreaesposito.pgmq.jdbc.client.MetricResult;
-import org.andreaesposito.pgmq.jdbc.client.QueueRecord;
+import bronya.pgsql.ext.mq.domain.Json;
+import bronya.pgsql.ext.mq.domain.MessageRecord;
+import bronya.pgsql.ext.mq.domain.MetricResult;
+import bronya.pgsql.ext.mq.domain.QueueRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

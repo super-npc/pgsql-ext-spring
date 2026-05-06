@@ -8,7 +8,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.andreaesposito.pgmq.jdbc.client.Json;
+import bronya.pgsql.ext.mq.domain.Json;
 
 import java.lang.reflect.Method;
 
@@ -66,7 +66,7 @@ public class SysPgMqUtil {
     /**
      * 从 MessageRecord 中提取 Headers
      */
-    public Json extractHeadersFromMessageRecord(org.andreaesposito.pgmq.jdbc.client.MessageRecord messageRecord) {
+    public Json extractHeadersFromMessageRecord(bronya.pgsql.ext.mq.domain.MessageRecord messageRecord) {
         try {
             // 尝试通过反射获取 headers 字段
             var headersField = messageRecord.getClass().getMethod("headers");

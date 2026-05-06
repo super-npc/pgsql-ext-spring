@@ -2,8 +2,8 @@ package bronya.pgsql.ext.mq.service;
 
 import lombok.extern.slf4j.Slf4j;
 import bronya.pgsql.ext.mq.autoconfig.PgMqBeanPostProcessor;
-import org.andreaesposito.pgmq.jdbc.client.Json;
-import org.andreaesposito.pgmq.jdbc.client.MessageRecord;
+import bronya.pgsql.ext.mq.domain.Json;
+import bronya.pgsql.ext.mq.domain.MessageRecord;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;

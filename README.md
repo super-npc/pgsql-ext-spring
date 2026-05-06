@@ -4,7 +4,7 @@
 
 ## 项目依赖
 
-- **类库依赖**: [pgmq-jdbc-client](https://github.com/roy20021/pgmq-jdbc-client)
+- **消息队列扩展**: [pgmq](https://github.com/tembo-io/pgmq)（通过 PgmqMapper/MyBatis 直接调用 SQL）
 - **Spring Boot 脚手架**: [bronya](https://github.com/super-npc/bronya)
 - **Maven 仓库(可选/本地构建)**: [mvn-repo](https://github.com/super-npc/mvn-repo)
 

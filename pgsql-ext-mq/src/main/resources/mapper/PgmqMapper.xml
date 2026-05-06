@@ -71,28 +71,28 @@
     </select>
 
     <!-- Reading Messages -->
-    <select id="read" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+    <select id="read" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read(
         queue_name => #{queueName}, vt => #{vt}, qty => #{qty}
         <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
         )
     </select>
 
-    <select id="readWithPollFull" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+    <select id="readWithPollFull" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read_with_poll(
         queue_name => #{queueName}, vt => #{vt}, qty => #{qty}, max_poll_seconds => #{maxPollSeconds}, poll_interval_ms => #{pollIntervalMs}
         <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
         )
     </select>
 
-    <select id="readWithPoll" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+    <select id="readWithPoll" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read_with_poll(
         queue_name => #{queueName}, vt => #{vt}, qty => #{qty}
         <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
         )
     </select>
 
-    <select id="pop" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+    <select id="pop" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.pop(queue_name => #{queueName})
     </select>
 
@@ -135,19 +135,19 @@
     </select>
 
     <!-- Utilities -->
-    <select id="listQueues" resultType="org.andreaesposito.pgmq.jdbc.client.QueueRecord">
+    <select id="listQueues" resultType="bronya.pgsql.ext.mq.domain.QueueRecord">
         SELECT * FROM pgmq.list_queues()
     </select>
 
-    <select id="metrics" resultType="org.andreaesposito.pgmq.jdbc.client.MetricResult">
+    <select id="metrics" resultType="bronya.pgsql.ext.mq.domain.MetricResult">
         SELECT * FROM pgmq.metrics(queue_name => #{queueName})
     </select>
 
-    <select id="metricsAll" resultType="org.andreaesposito.pgmq.jdbc.client.MetricResult">
+    <select id="metricsAll" resultType="bronya.pgsql.ext.mq.domain.MetricResult">
         SELECT * FROM pgmq.metrics_all()
     </select>
 
-    <select id="setVisibilityTimeout" resultType="org.andreaesposito.pgmq.jdbc.client.MessageRecord">
+    <select id="setVisibilityTimeout" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.set_vt(queue_name => #{queueName}, msg_id => #{msgId}, vt => #{vt})
     </select>
 </mapper>

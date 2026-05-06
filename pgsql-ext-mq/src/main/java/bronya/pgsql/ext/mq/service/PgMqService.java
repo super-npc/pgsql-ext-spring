@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.andreaesposito.pgmq.jdbc.client.*;
+import bronya.pgsql.ext.mq.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -43,7 +43,7 @@ import java.util.function.BiFunction;
  * </ul>
  *
  * @author olive
- * @see <a href="https://github.com/roy20021/pgmq-jdbc-client">pgmq-jdbc-client</a>
+ * @see <a href="https://github.com/tembo-io/pgmq">pgmq</a>
  */
 @Slf4j
 @Service

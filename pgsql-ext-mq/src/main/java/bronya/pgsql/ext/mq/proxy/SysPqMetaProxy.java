@@ -20,13 +20,12 @@ import cn.hutool.v7.core.text.split.SplitUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.steppschuh.markdowngenerator.text.quote.Quote;
-import org.andreaesposito.pgmq.jdbc.client.MetricResult;
+import bronya.pgsql.ext.mq.domain.MetricResult;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -35,6 +34,9 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
     private final SysPqMetaRepository sysPqMetaRepository;
     private final PgMqService pgMqService;
     private final PgMqBeanPostProcessor pgMqBeanPostProcessor;
+
+    private static final long METRICS_ALL_CACHE_TTL_MS = 1000L;
+    private final AtomicReference<MetricsAllCache> metricsAllCache = new AtomicReference<>(new MetricsAllCache(0L, Map.of()));
 
     @Override
     public void table(Map<String, Object> map) {
@@ -76,18 +78,68 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
     private String getMetrics(SysPqMeta sysPqMeta) {
         Md md = new Md();
         try {
-            MetricResult metrics = pgMqService.metrics(sysPqMeta.getQueueName());
+            if (Thread.currentThread().isInterrupted()) {
+                return "";
+            }
+
+            MetricResult metrics = this.getMetricsFromCache(sysPqMeta.getQueueName());
             md.appendLn(new Quote("统计数据"));
             md.appendLn("- 名称:{}", metrics.queueName());
             md.appendLn("- 总消息数:{}", metrics.totalMessages());
             md.appendLn("- 可见消息数:{}", metrics.queueVisibleLength());
             md.appendLn("- 队列长度:{}", metrics.queueLength());
-            md.appendLn("- 最新消息:{}", DateUtil.formatBetween(metrics.newestMsgAgeSec() * 1000L));
-            md.appendLn("- 最旧消息:{}", DateUtil.formatBetween(metrics.oldestMsgAgeSec() * 1000L));
+            md.appendLn("- 最新消息:{}", DateUtil.formatBetween(Optional.ofNullable(metrics.newestMsgAgeSec()).orElse(0) * 1000L));
+            md.appendLn("- 最旧消息:{}", DateUtil.formatBetween(Optional.ofNullable(metrics.oldestMsgAgeSec()).orElse(0) * 1000L));
             md.appendLn("- 统计时间:{}", DateUtil.formatDateTime(Date.from(metrics.scrapeTime().toInstant())));
         } catch (SQLException e) {
-            log.warn("获取队列指标异常", e);
+            log.warn("获取队列指标异常: queue={}, err={}", sysPqMeta.getQueueName(), e.toString());
         }
         return md.toString();
+    }
+
+    private MetricResult getMetricsFromCache(String queueName) throws SQLException {
+        String key = queueName == null ? "" : queueName.toLowerCase();
+        long now = System.currentTimeMillis();
+
+        MetricsAllCache cache = metricsAllCache.get();
+        if (now < cache.expireAtMs()) {
+            MetricResult hit = cache.byQueueLower().get(key);
+            if (hit != null) {
+                return hit;
+            }
+        }
+
+        if (Thread.currentThread().isInterrupted()) {
+            throw new SQLException("interrupt");
+        }
+
+        try {
+            List<MetricResult> all = pgMqService.metricsAll();
+            Map<String, MetricResult> byQueue = new HashMap<>(Math.max(16, all.size() * 2));
+            for (MetricResult m : all) {
+                if (m != null && m.queueName() != null) {
+                    byQueue.put(m.queueName().toLowerCase(), m);
+                }
+            }
+            MetricsAllCache next = new MetricsAllCache(now + METRICS_ALL_CACHE_TTL_MS, Map.copyOf(byQueue));
+            metricsAllCache.set(next);
+
+            MetricResult hit = next.byQueueLower().get(key);
+            if (hit != null) {
+                return hit;
+            }
+        } catch (SQLException e) {
+            MetricsAllCache old = metricsAllCache.get();
+            MetricResult hit = old.byQueueLower().get(key);
+            if (hit != null) {
+                return hit;
+            }
+            throw e;
+        }
+
+        return pgMqService.metrics(queueName);
+    }
+
+    private record MetricsAllCache(long expireAtMs, Map<String, MetricResult> byQueueLower) {
     }
 }

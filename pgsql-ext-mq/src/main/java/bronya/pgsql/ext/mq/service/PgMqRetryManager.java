@@ -1,7 +1,7 @@
 package bronya.pgsql.ext.mq.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.andreaesposito.pgmq.jdbc.client.Json;
+import bronya.pgsql.ext.mq.domain.Json;
 
 import java.util.UUID;
 

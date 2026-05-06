@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;
 import bronya.pgsql.ext.mq.autoconfig.PgMqBeanPostProcessor;
 import bronya.pgsql.ext.mq.service.PgMqService;
-import org.andreaesposito.pgmq.jdbc.client.Json;
+import bronya.pgsql.ext.mq.domain.Json;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
