@@ -3,6 +3,20 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="bronya.pgsql.ext.mq.mapper.PgmqMapper">
+    <resultMap id="MessageRecordMap" type="bronya.pgsql.ext.mq.domain.MessageRecord">
+        <constructor>
+            <idArg column="msg_id" javaType="java.lang.Long"/>
+            <arg column="read_ct" javaType="java.lang.Integer"/>
+            <arg column="enqueued_at" javaType="java.time.OffsetDateTime"/>
+            <arg column="vt" javaType="java.time.OffsetDateTime"/>
+            <arg column="headers" javaType="bronya.pgsql.ext.mq.domain.Json"
+                 jdbcType="OTHER"
+                 typeHandler="bronya.pgsql.ext.mq.mybatis.JsonTypeHandler"/>
+            <arg column="message" javaType="bronya.pgsql.ext.mq.domain.Json"
+                 jdbcType="OTHER"
+                 typeHandler="bronya.pgsql.ext.mq.mybatis.JsonTypeHandler"/>
+        </constructor>
+    </resultMap>
     <!-- Sending Messages -->
     <select id="send" resultType="java.lang.Long">
         SELECT * FROM pgmq.send(queue_name => #{queueName}, msg => #{msg.value}::jsonb)
@@ -71,28 +85,28 @@
     </select>
 
     <!-- Reading Messages -->
-    <select id="read" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
+    <select id="read" resultMap="MessageRecordMap">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read(
         queue_name => #{queueName}, vt => #{vt}, qty => #{qty}
         <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
         )
     </select>
 
-    <select id="readWithPollFull" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
+    <select id="readWithPollFull" resultMap="MessageRecordMap">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read_with_poll(
         queue_name => #{queueName}, vt => #{vt}, qty => #{qty}, max_poll_seconds => #{maxPollSeconds}, poll_interval_ms => #{pollIntervalMs}
         <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
         )
     </select>
 
-    <select id="readWithPoll" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
+    <select id="readWithPoll" resultMap="MessageRecordMap">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.read_with_poll(
         queue_name => #{queueName}, vt => #{vt}, qty => #{qty}
         <if test="conditional != null">, conditional => #{conditional.value}::jsonb</if>
         )
     </select>
 
-    <select id="pop" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
+    <select id="pop" resultMap="MessageRecordMap">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.pop(queue_name => #{queueName})
     </select>
 
@@ -147,7 +161,7 @@
         SELECT * FROM pgmq.metrics_all()
     </select>
 
-    <select id="setVisibilityTimeout" resultType="bronya.pgsql.ext.mq.domain.MessageRecord">
+    <select id="setVisibilityTimeout" resultMap="MessageRecordMap">
         SELECT msg_id, read_ct, enqueued_at, vt, headers, message FROM pgmq.set_vt(queue_name => #{queueName}, msg_id => #{msgId}, vt => #{vt})
     </select>
 </mapper>
