@@ -1,6 +1,6 @@
 package bronya.pgsql.ext.mq.proxy;
 
-import bronya.admin.module.db.amis.util.BronyaAdminBaseAmisUtil;
+import bronya.admin.module.amis.util.BronyaAdminBaseAmisUtil;
 import bronya.pgsql.ext.mq.util.SysPgMqUtil;
 import bronya.pgsql.ext.mq.domain.SysPqQueue;
 import bronya.pgsql.ext.mq.domain.SysPqQueue.SysPqQueueExt;

@@ -1,7 +1,7 @@
 package bronya.pgsql.ext.mq.controller;
 
 import bronya.admin.model.annotation.AmisIds;
-import bronya.admin.module.db.amis.dto.AmisIdsDto;
+import bronya.admin.module.amis.dto.AmisIdsDto;
 import cn.hutool.v7.core.lang.Assert;
 import cn.hutool.v7.core.map.MapUtil;
 import lombok.RequiredArgsConstructor;

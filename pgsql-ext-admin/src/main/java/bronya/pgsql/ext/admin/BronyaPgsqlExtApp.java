@@ -1,6 +1,6 @@
 package bronya.pgsql.ext.admin;
 
-import bronya.admin.base.common.util.MyLogUtil;
+import bronya.admin.common.util.MyLogUtil;
 import bronya.admin.model.annotation.AmisScan;
 import bronya.admin.model.annotation.EnableMySchedule;
 import com.alibaba.arthas.spring.endpoints.ArthasEndPointAutoConfiguration;

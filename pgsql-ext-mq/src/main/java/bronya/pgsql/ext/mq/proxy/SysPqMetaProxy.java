@@ -1,6 +1,6 @@
 package bronya.pgsql.ext.mq.proxy;
 
-import bronya.admin.module.db.amis.util.BronyaAdminBaseAmisUtil;
+import bronya.admin.module.amis.util.BronyaAdminBaseAmisUtil;
 import bronya.core.base.dto.DataProxy;
 import bronya.pgsql.ext.mq.annotation.PgMqDeadLetterConfig;
 import bronya.pgsql.ext.mq.annotation.PgMqListener.SubscribeType;

@@ -1,7 +1,7 @@
 package bronya.pgsql.ext.mq.controller;
 
 import bronya.admin.model.annotation.AmisIds;
-import bronya.admin.module.db.amis.dto.AmisIdsDto;
+import bronya.admin.module.amis.dto.AmisIdsDto;
 import bronya.pgsql.ext.mq.domain.SysPqArchive;
 import bronya.pgsql.ext.mq.domain.SysPqMeta;
 import bronya.pgsql.ext.mq.repository.SysPqArchiveRepository;
