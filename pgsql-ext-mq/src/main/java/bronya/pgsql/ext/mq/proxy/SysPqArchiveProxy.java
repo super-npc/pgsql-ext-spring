@@ -8,7 +8,6 @@ import bronya.pgsql.ext.mq.repository.SysPqArchiveRepository;
 import bronya.core.base.dto.DataProxy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import cn.hutool.v7.core.bean.BeanUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -21,13 +20,10 @@ public class SysPqArchiveProxy extends DataProxy<SysPqArchive> {
 
     @Override
     public void table(Map<String, Object> map) {
-        SysPqArchive sysPqArchive = BeanUtil.toBean(BronyaAdminBaseAmisUtil.map2obj(map), SysPqArchive.class);
-        sysPqArchive.setMessage(SysPgMqUtil.parseValue(sysPqArchive.getMessage()));
-        sysPqArchive.setHeaders(SysPgMqUtil.parseValue(sysPqArchive.getHeaders()));
-        SysPqArchiveExt sysPqArchiveExt = new SysPqArchiveExt();
-
-        // 配置拓展属性信息
-        map.putAll(BronyaAdminBaseAmisUtil.obj2map(SysPqArchive.class, sysPqArchive));
-        map.putAll(BronyaAdminBaseAmisUtil.obj2map(SysPqArchive.class, sysPqArchiveExt));
+        BronyaAdminBaseAmisUtil.fillTableExt(map, SysPqArchive.class, SysPqArchiveExt::new, (sysPqArchive, sysPqArchiveExt) -> {
+            sysPqArchive.setMessage(SysPgMqUtil.parseValue(sysPqArchive.getMessage()));
+            sysPqArchive.setHeaders(SysPgMqUtil.parseValue(sysPqArchive.getHeaders()));
+            BronyaAdminBaseAmisUtil.mergeExt(map, SysPqArchive.class, sysPqArchive);
+        });
     }
 }

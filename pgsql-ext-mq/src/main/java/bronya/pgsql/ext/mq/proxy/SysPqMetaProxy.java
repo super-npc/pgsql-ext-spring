@@ -13,7 +13,6 @@ import bronya.pgsql.ext.mq.domain.SysPqMeta.SysPqMetaExt;
 import bronya.pgsql.ext.mq.repository.SysPqMetaRepository;
 import bronya.pgsql.ext.mq.service.PgMqService;
 import bronya.shared.util.Md;
-import cn.hutool.v7.core.bean.BeanUtil;
 import cn.hutool.v7.core.date.DateUtil;
 import cn.hutool.v7.core.text.StrUtil;
 import cn.hutool.v7.core.text.split.SplitUtil;
@@ -38,17 +37,14 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
 
     @Override
     public void table(Map<String, Object> map) {
-        SysPqMeta sysPqMeta = BeanUtil.toBean(BronyaAdminBaseAmisUtil.map2obj(map), SysPqMeta.class);
-        SysPqMetaExt sysPqMetaExt = new SysPqMetaExt();
-        // 统计
+        BronyaAdminBaseAmisUtil.fillTableExt(map, SysPqMeta.class, SysPqMetaExt::new, (sysPqMeta, sysPqMetaExt) -> {        // 统计
         sysPqMetaExt.setMetrics(this.getMetrics(sysPqMeta));
         // 队列信息
         sysPqMetaExt.setInfo(this.getQueueInfo(sysPqMeta));
 
-        // 配置拓展属性信息
-        map.putAll(BronyaAdminBaseAmisUtil.obj2map(SysPqMeta.class, sysPqMetaExt));
-    }
+        });
 
+    }
     private String getQueueInfo(SysPqMeta sysPqMeta){
         List<ListenerMethodInfo> queues = PgmqFinalConstant.consumerTable.values().stream()
                 .flatMap(List::stream)
@@ -72,7 +68,6 @@ public class SysPqMetaProxy extends DataProxy<SysPqMeta> {
         }
         return md.toString();
     }
-
     private String getMetrics(SysPqMeta sysPqMeta) {
         Md md = new Md();
         try {
